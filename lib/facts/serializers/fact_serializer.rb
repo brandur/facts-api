@@ -10,7 +10,7 @@ module Facts
         }
       end
 
-      def category_nested(f)
+      def nested(f)
         {
           :id      => f.id,
           :content => f.content,

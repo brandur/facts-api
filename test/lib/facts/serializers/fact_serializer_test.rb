@@ -18,8 +18,8 @@ module Facts
         )
       end
 
-      it "serializes with :category_nested" do
-        FactSerializer.new(:category_nested).serialize(fact).must_equal attrs
+      it "serializes with :nested" do
+        FactSerializer.new(:nested).serialize(fact).must_equal attrs
       end
     end
   end
