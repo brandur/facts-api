@@ -1,0 +1,19 @@
+module Facts
+  module Models
+    class Category < ActiveRecord::Base
+      belongs_to :category
+      has_many :categories
+
+      has_many :facts
+
+      validates_presence_of :name, :slug
+      validates_uniqueness_of :slug
+
+      default_scope :order => :name
+      scope :top, where(:category_id => nil)
+      scope :search, lambda { |query|
+        where 'categories.id LIKE ? OR categories.name LIKE ?', "%#{query}%", "%#{query}%"
+      }
+    end
+  end
+end

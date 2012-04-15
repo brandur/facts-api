@@ -1,5 +1,3 @@
-require 'grape'
-
 module Facts
   module Api
     class V0 < Grape::API

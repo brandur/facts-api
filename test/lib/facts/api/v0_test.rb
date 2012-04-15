@@ -1,5 +1,4 @@
 require "test_helper"
-require "facts/api/v0"
 
 describe Facts::Api::V0 do
   include Rack::Test::Methods
@@ -12,7 +11,7 @@ describe Facts::Api::V0 do
     it "gets latest" do
       get "/v0/facts/latest"
       last_response.status.must_equal 200
-      last_response.body.must_equal '{"message":"woot woot!"}'
+      last_response.body.must_equal ({ message: "woot woot!" }.to_json)
     end
   end
 end
