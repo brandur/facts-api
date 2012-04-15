@@ -4,13 +4,15 @@ module Facts
       belongs_to :category
       validates_presence_of :category, :content
 
-      scope :random, order("RAND()")
+      scope :random, order("RANDOM()")
       scope :search, lambda { |query|
-        where 'facts.id LIKE ? OR facts.content LIKE ?', "%#{query}%", "%#{query}%"
+        where 'facts.content LIKE ?', "%#{query}%"
       }
 
       def content_html
-        RDiscount.new(content).to_html
+        renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, 
+          :fenced_code_blocks => true, :hard_wrap => true)
+        renderer.render(content)
       end
     end
   end

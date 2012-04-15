@@ -1,5 +1,6 @@
 require "active_record"
 require "grape"
+require "redcarpet"
 
 require "facts/monkey_patch"
 

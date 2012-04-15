@@ -12,7 +12,7 @@ module Facts
       default_scope :order => :name
       scope :top, where(:category_id => nil)
       scope :search, lambda { |query|
-        where 'categories.id LIKE ? OR categories.name LIKE ?', "%#{query}%", "%#{query}%"
+        where 'categories.name LIKE ?', "%#{query}%"
       }
     end
   end
