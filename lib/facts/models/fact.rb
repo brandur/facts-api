@@ -6,7 +6,7 @@ module Facts
 
       scope :random, order("RANDOM()")
       scope :search, lambda { |query|
-        where 'facts.content LIKE ?', "%#{query}%"
+        where 'facts.content ILIKE ?', "%#{query}%"
       }
 
       def content_html
