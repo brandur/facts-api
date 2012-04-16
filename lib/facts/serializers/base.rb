@@ -6,7 +6,9 @@ module Facts
       end
 
       def serialize(obj)
-        if obj.respond_to?(:map)
+        if obj.nil?
+          nil
+        elsif obj.respond_to?(:map)
           obj.map{ |o| serialize(o) }
         else
           send(@form, obj)

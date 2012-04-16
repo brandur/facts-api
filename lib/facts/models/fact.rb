@@ -1,6 +1,7 @@
 module Facts
   module Models
     class Fact < ActiveRecord::Base
+      attr_accessible :category_id, :content
       belongs_to :category
       validates_presence_of :category, :content
 

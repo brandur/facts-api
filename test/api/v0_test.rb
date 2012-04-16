@@ -1,17 +1,72 @@
 require "test_helper"
 
-describe Facts::Api::V0 do
-  include Rack::Test::Methods
+module Facts
+  module Api
+    describe V0 do
+      include Rack::Test::Methods
 
-  def app
-    Facts::Api::V0
-  end
+      let(:fact1) { Models::Fact.new(id: 1, content: "The world is big.") }
+      let(:fact2) { Models::Fact.new(id: 2, content: "The world is round.") }
 
-  describe "facts" do
-    it "gets latest" do
-      get "/v0/facts/latest"
-      last_response.status.must_equal 200
-      last_response.body.must_equal ({ message: "woot woot!" }.to_json)
+      def app
+        Facts::Api::V0
+      end
+
+      describe "facts" do
+        it "gets all" do
+          mock(Models::Fact).all { [fact1, fact2] }
+          get "/v0/facts"
+          last_response.status.must_equal 200
+          last_response.body.parse_json.must_equal serialize([fact1, fact2])
+        end
+
+        it "gets by id" do
+          mock(Models::Fact).find!("1") { fact1 }
+          get "/v0/facts/1"
+          last_response.status.must_equal 200
+          last_response.body.parse_json.must_equal serialize(fact1)
+        end
+
+        it "requires authentication to create a fact" do
+        end
+
+        it "creates new facts" do
+          attrs = { category_id: 1, content: "The world is big." }
+          mock(Models::Fact).create!(attrs.stringify_keys!) { fact1 }
+          post "/v0/facts", :fact => attrs.to_json
+          last_response.status.must_equal 201
+          last_response.body.parse_json.must_equal serialize(fact1)
+        end
+
+        it "requires authentication to update a fact" do
+        end
+
+        it "updates existing facts" do
+          attrs = { content: "The world is very big." }
+          mock(Models::Fact).find!("1") { fact1 }
+          mock(fact1).update_attributes(attrs.stringify_keys!) { true }
+          put "/v0/facts/1", :fact => attrs.to_json
+          last_response.status.must_equal 200
+          last_response.body.parse_json.must_equal serialize(fact1)
+        end
+
+        it "requires authentication to delete a fact" do
+        end
+
+        it "deletes a fact" do
+          mock(Models::Fact).find!("1") { fact1 }
+          mock(fact1).destroy { true }
+          delete "/v0/facts/1"
+          last_response.status.must_equal 200
+          last_response.body.must_equal ""
+        end
+      end
+
+      private
+
+      def serialize(obj)
+        serialize_generic(Serializers::FactSerializer, :api, obj)
+      end
     end
   end
 end
