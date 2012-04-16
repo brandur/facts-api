@@ -1,27 +1,16 @@
 module Facts
   module Api
-    class V0 < Grape::API
+    class V0Facts < Grape::API
       default_format :json
+      helpers { include Helpers }
       error_format :json
-
       version 'v0', :using => :path
 
       helpers do
-        def authenticate!
-        end
-
-        def require_params!(*keys)
-          keys.each do |key|
-            error!("Require parameter: #{key}", 422) unless params[key]
-          end
-        end
-
-        def serializer
-          @@serializer ||= Serializers::FactSerializer.new(:api)
-        end
+        @@serializer = Serializers::FactSerializer.new(:api)
 
         def serialize(obj)
-          serializer.serialize(obj)
+          @@serializer.serialize(obj)
         end
       end
 

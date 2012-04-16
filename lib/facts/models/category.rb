@@ -15,6 +15,10 @@ module Facts
       scope :search, lambda { |query|
         where 'categories.name ILIKE ?', "%#{query}%"
       }
+
+      def to_param
+        slug
+      end
     end
   end
 end
