@@ -8,12 +8,13 @@ require "facts"
 
 ActiveRecord::Base.establish_connection database: "facts-api-test", adapter: "postgresql"
 
-# should probably be a before(:each)
-ActiveRecord::Base.connection.execute("TRUNCATE facts")
-ActiveRecord::Base.connection.execute("TRUNCATE categories")
-
 class MiniTest::Spec
   include RR::Adapters::TestUnit
+
+  before do
+    ActiveRecord::Base.connection.execute("TRUNCATE facts")
+    ActiveRecord::Base.connection.execute("TRUNCATE categories")
+  end
 end
 
 class Hash

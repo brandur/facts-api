@@ -7,8 +7,9 @@ module Facts
 
       has_many :facts
 
-      validates_presence_of :name, :slug
-      validates_uniqueness_of :slug
+      validates :name, presence: true
+      validates :slug, presence: true, uniqueness: true, 
+        format: %r{^[a-z0-9][a-z0-9-]*[a-z0-9]$}
 
       default_scope :order => :name
       scope :top, where(:category_id => nil)
@@ -16,8 +17,31 @@ module Facts
         where 'categories.name ILIKE ?', "%#{query}%"
       }
 
+      def self.find_by_path(path)
+        slugs = path.split(%r{/}).reverse
+        categories = arel_table
+        query = categories.where(categories[:slug].eq(slugs.shift))
+        slugs.each_with_index do |slug, i|
+          parent = arel_table.alias("categories#{i}")
+          query = query.join(parent).on(categories[:category_id].eq(parent[:id])).
+            where(parent[:slug].eq(slug))
+          categories = parent
+        end
+        query = query.project(Arel.sql("categories.*")).take(1)
+        sql = query.to_sql
+        find_by_sql(sql).first
+      end
+
+      def self.find_by_path!(path)
+        find_by_path(path) or raise ActiveRecord::RecordNotFound
+      end
+
+      def path
+        (category ? "#{category.path}/" : "") + slug
+      end
+
       def to_param
-        slug
+        path
       end
     end
   end
