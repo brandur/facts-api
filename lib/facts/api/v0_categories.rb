@@ -9,6 +9,12 @@ module Facts
       helpers do
         @@serializer = Serializers::CategorySerializer.new(:api)
 
+        class TopCategory
+          def self.categories
+            Models::Category.top
+          end
+        end
+
         def serialize(obj)
           @@serializer.serialize(obj)
         end
@@ -19,6 +25,7 @@ module Facts
             new_category = category.categories.find_by_slug(category_attrs["slug"])
             if new_category
               update_category(new_category, category_attrs)
+              categories_not_updated.delete(new_category.id)
             else
               category.categories.create!(category_attrs)
             end
@@ -44,7 +51,7 @@ module Facts
             fact = category.facts.find_by_content(fact_attrs["content"])
             if fact
               fact.update_attributes(fact_attrs)
-              facts_note_updated.delete(fact.id)
+              facts_not_updated.delete(fact.id)
             else
               category.facts.create!(fact_attrs)
             end
@@ -78,12 +85,23 @@ module Facts
         put "*path" do
           authenticate!
           require_params!(:category)
-          category = Models::Category.find_by_path!(params[:path])
           attrs = params[:category].parse_json
+          category = Models::Category.find_by_path!(params[:path])
           Models::Category.transaction do
             update_category(category, attrs)
           end
           serialize(category)
+        end
+
+        # special top level sync
+        put do
+          authenticate!
+          require_params!(:category)
+          attrs = params[:category].parse_json
+          Models::Category.transaction do
+            update_categories(TopCategory, attrs["categories"])
+          end
+          ""
         end
 
         delete "*path" do

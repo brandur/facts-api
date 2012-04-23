@@ -76,17 +76,29 @@ module Facts
 
         it "adds facts to a category" do
           attrs = { category_id: 1, name: "Canada", slug: "canada", facts: [
-            { content: "The world is big." },
+            { content: "Canada is big." },
           ]}
           put "/v0/categories/world/canada", :category => attrs.to_json
           last_response.status.must_equal 200
           category2.reload
           category2.facts.count.must_equal 1
-          category2.facts.first.content.must_equal "The world is big."
+          category2.facts.first.content.must_equal "Canada is big."
+        end
+
+        it "keeps an existing fact" do
+          fact = category2.facts.create! content: "Canada is big."
+          attrs = { category_id: 1, name: "Canada", slug: "canada", facts: [
+            { content: "Canada is big." },
+          ]}
+          put "/v0/categories/world/canada", :category => attrs.to_json
+          last_response.status.must_equal 200
+          category2.reload
+          category2.facts.count.must_equal 1
+          category2.facts.first.id.must_equal fact.id
         end
 
         it "removes facts from a category" do
-          category2.facts.create! content: "The world is big."
+          category2.facts.create! content: "Canada is big."
           attrs = { category_id: 1, name: "Canada", slug: "canada", facts: [] }
           put "/v0/categories/world/canada", :category => attrs.to_json
           last_response.status.must_equal 200
@@ -114,6 +126,18 @@ module Facts
           category2.categories.first.slug.must_equal "alberta"
         end
 
+        it "keeps an existing subcategory" do
+          category = category2.categories.create! name: "Alberta", slug: "alberta"
+          attrs = { category_id: 1, name: "Canada", slug: "canada", categories: [
+            { name: "Alberta", slug: "alberta" },
+          ]}
+          put "/v0/categories/world/canada", :category => attrs.to_json
+          last_response.status.must_equal 200
+          category2.reload
+          category2.categories.count.must_equal 1
+          category2.categories.first.id.must_equal category.id
+        end
+
         it "removes a subcategory" do
           category2.categories.create! name: "Alberta", slug: "alberta"
           attrs = { category_id: 1, name: "Canada", slug: "canada", categories: [] }
@@ -130,6 +154,14 @@ module Facts
           last_response.status.must_equal 200
           category2.reload
           category2.categories.count.must_equal 1
+        end
+
+        it "allows a special top level category push" do
+          attrs = { categories: [] }
+          put "/v0/categories", :category => attrs.to_json
+          last_response.status.must_equal 200
+          last_response.body.must_equal ""
+          Models::Category.count.must_equal 0
         end
       end
 

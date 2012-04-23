@@ -3,7 +3,7 @@ module Facts
     class Category < ActiveRecord::Base
       attr_accessible :category_id, :name, :slug
       belongs_to :category
-      has_many :categories
+      has_many :categories, :dependent => :destroy
 
       has_many :facts
 
