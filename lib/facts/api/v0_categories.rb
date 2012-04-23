@@ -30,22 +30,22 @@ module Facts
           serialize(Models::Category.create!(attrs))
         end
 
-        get "*slug" do
-          serialize(Models::Category.find_by_slug!(params[:slug]))
+        get "*path" do
+          serialize(Models::Category.find_by_path!(params[:path]))
         end
 
-        put "*slug" do
+        put "*path" do
           authenticate!
           require_params!(:category)
-          category = Models::Category.find_by_slug!(params[:slug])
+          category = Models::Category.find_by_path!(params[:path])
           attrs = params[:category].parse_json
           category.update_attributes(attrs)
           serialize(category)
         end
 
-        delete "*slug" do
+        delete "*path" do
           authenticate!
-          category = Models::Category.find_by_slug!(params[:slug])
+          category = Models::Category.find_by_path!(params[:path])
           category.destroy
           ""
         end

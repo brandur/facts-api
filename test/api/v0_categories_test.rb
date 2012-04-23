@@ -26,8 +26,8 @@ module Facts
         last_response.body.parse_json.must_equal serialize([category1])
       end
 
-      it "gets by slug" do
-        mock(Models::Category).find_by_slug!("world/canada") { category1 }
+      it "gets by path" do
+        mock(Models::Category).find_by_path!("world/canada") { category1 }
         get "/v0/categories/world/canada"
         last_response.status.must_equal 200
         last_response.body.parse_json.must_equal serialize(category1)
@@ -37,7 +37,7 @@ module Facts
       end
 
       it "creates new categories" do
-        attrs = { category_id: 1, name: "Canada", slug: "world/canada" }
+        attrs = { category_id: 1, name: "Canada", slug: "canada" }
         mock(Models::Category).create!(attrs.stringify_keys!) { category2 }
         post "/v0/categories", :category => attrs.to_json
         last_response.status.must_equal 201
@@ -48,8 +48,8 @@ module Facts
       end
 
       it "updates existing categories" do
-        attrs = { category_id: 1, name: "Canada", slug: "world/canada" }
-        mock(Models::Category).find_by_slug!("world/canada") { category2 }
+        attrs = { category_id: 1, name: "Canada", slug: "canada" }
+        mock(Models::Category).find_by_path!("world/canada") { category2 }
         mock(category2).update_attributes(attrs.stringify_keys!) { true }
         put "/v0/categories/world/canada", :category => attrs.to_json
         last_response.status.must_equal 200
@@ -60,7 +60,7 @@ module Facts
       end
 
       it "deletes a category" do
-        mock(Models::Category).find_by_slug!("world/canada") { category2 }
+        mock(Models::Category).find_by_path!("world/canada") { category2 }
         mock(category2).destroy { true }
         delete "/v0/categories/world/canada"
         last_response.status.must_equal 200
