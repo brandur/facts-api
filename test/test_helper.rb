@@ -26,6 +26,11 @@ class Hash
   end
 end
 
+def d
+  require "debugger"
+  debugger
+end
+
 def serialize_generic(serializer, form, obj)
   out = serializer.new(form).serialize(obj)
   if obj.respond_to?(:map)

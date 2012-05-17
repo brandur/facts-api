@@ -1,4 +1,5 @@
 $: << "./lib"
-require 'facts'
+require "facts"
 
+Facts::DataHelper.init
 run Facts::ApiAggregate

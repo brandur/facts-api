@@ -49,6 +49,7 @@ module Facts
 
       it "updates existing categories" do
         attrs = { category_id: 1, name: "Canada", slug: "canada" }
+        stub(category2).new_record? { false }
         mock(Models::Category).find_by_path!("world/canada") { category2 }
         mock(category2).update_attributes(attrs.stringify_keys!) { true }
         put "/v0/categories/world/canada", :category => attrs.to_json

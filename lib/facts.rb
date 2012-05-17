@@ -2,6 +2,8 @@ require "active_record"
 require "grape"
 require "redcarpet"
 
+require "facts/config"
+require "facts/data_helper"
 require "facts/monkey_patch"
 
 require "facts/models/category"

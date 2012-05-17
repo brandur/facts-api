@@ -9,12 +9,7 @@ Rake::TestTask.new do |t|
 end
 
 task :environment do
-  if ENV["DATABASE_URL"]
-    ActiveRecord::Base.establish_connection(ENV["DATABASE_URL"])
-  else
-    database = "facts-api-#{ENV["ENV"] || "development"}"
-    ActiveRecord::Base.establish_connection(database: database, adapter: "postgresql")
-  end
+  Facts::DataHelper.init
 end
 
 namespace :db do

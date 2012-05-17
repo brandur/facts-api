@@ -8,8 +8,8 @@ module Facts
       has_many :facts
 
       validates :name, presence: true
-      validates :slug, presence: true, uniqueness: true, 
-        format: %r{^[a-z0-9][a-z0-9-]*[a-z0-9]$}
+      validates :slug, presence: true, format: %r{^[a-z0-9][a-z0-9-]*[a-z0-9]$}
+      validates_uniqueness_of :slug, scope: :category_id
 
       default_scope :order => :name
       scope :top, where(:category_id => nil)
