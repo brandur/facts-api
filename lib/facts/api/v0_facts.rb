@@ -23,7 +23,7 @@ module Facts
         end
 
         post do
-          authenticate!
+          authorized!
           require_params!(:fact)
           attrs = params[:fact].parse_json
           serialize(Models::Fact.create!(attrs))
@@ -34,7 +34,7 @@ module Facts
         end
 
         put ":id" do
-          authenticate!
+          authorized!
           require_params!(:fact)
           fact = Models::Fact.find!(params[:id])
           attrs = params[:fact].parse_json
@@ -43,7 +43,7 @@ module Facts
         end
 
         delete ":id" do
-          authenticate!
+          authorized!
           fact = Models::Fact.find!(params[:id])
           fact.destroy
           ""

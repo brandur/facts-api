@@ -3,7 +3,23 @@ module Facts
     module Helpers
       @@mtx = Mutex.new
 
-      def authenticate!
+      def auth
+        @auth ||= Rack::Auth::Basic::Request.new(request.env)
+      end
+
+      def auth_credentials
+        auth.provided? && auth.basic? ? auth.credentials : nil
+      end
+
+      def authorized?
+        auth_credentials == [ "", Config.http_api_key ]
+      end
+
+      def authorized!
+        unless authorized?
+          log :not_authorized, credentials: auth_credentials
+          throw :halt, 401
+        end
       end
 
       def log(event, attrs)

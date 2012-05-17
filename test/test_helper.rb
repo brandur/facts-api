@@ -26,6 +26,10 @@ class Hash
   end
 end
 
+def encode_credentials(user, pass)
+  "Basic " + Base64.encode64("#{user}:#{pass}")
+end
+
 def d
   require "debugger"
   debugger

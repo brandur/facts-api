@@ -6,19 +6,9 @@ module Facts
       @database_url ||= env!("DATABASE_URL")
     end
 
-=begin
-    def port
-      @port ||= env("PORT") || 7080
+    def http_api_key
+      @http_api_key ||= env!("FACTS_HTTP_API_KEY")
     end
-
-    def http_user
-      @http_user ||= env!("YAKEI_HTTP_USER")
-    end
-
-    def http_pass
-      @http_pass ||= env!("YAKEI_HTTP_PASS")
-    end
-=end
 
     private
 

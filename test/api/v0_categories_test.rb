@@ -5,8 +5,13 @@ module Facts
     describe "api v0 categories" do
       include Rack::Test::Methods
 
+      before do
+        ENV["FACTS_HTTP_API_KEY"] = "secret"
+      end
+
       let(:category1) { Models::Category.new(id: 1, name: "World", slug: "world") }
       let(:category2) { Models::Category.new(id: 2, name: "Canada", slug: "canada", category_id: category1.id) }
+      let(:env) {{ 'HTTP_AUTHORIZATION' => encode_credentials("", "secret") }}
 
       def app
         Facts::ApiAggregate
@@ -39,7 +44,7 @@ module Facts
       it "creates new categories" do
         attrs = { category_id: 1, name: "Canada", slug: "canada" }
         mock(Models::Category).create!(attrs.stringify_keys!) { category2 }
-        post "/v0/categories", :category => attrs.to_json
+        post "/v0/categories", { category: attrs.to_json }, env
         last_response.status.must_equal 201
         last_response.body.parse_json.must_equal serialize(category2)
       end
@@ -52,7 +57,7 @@ module Facts
         stub(category2).new_record? { false }
         mock(Models::Category).find_by_path!("world/canada") { category2 }
         mock(category2).update_attributes(attrs.stringify_keys!) { true }
-        put "/v0/categories/world/canada", :category => attrs.to_json
+        put "/v0/categories/world/canada", { category: attrs.to_json }, env
         last_response.status.must_equal 200
         last_response.body.parse_json.must_equal serialize(category2)
       end
@@ -63,7 +68,7 @@ module Facts
       it "deletes a category" do
         mock(Models::Category).find_by_path!("world/canada") { category2 }
         mock(category2).destroy { true }
-        delete "/v0/categories/world/canada"
+        delete "/v0/categories/world/canada", {}, env
         last_response.status.must_equal 200
         last_response.body.must_equal ""
       end
@@ -79,7 +84,7 @@ module Facts
           attrs = { category_id: 1, name: "Canada", slug: "canada", facts: [
             { content: "Canada is big." },
           ]}
-          put "/v0/categories/world/canada", :category => attrs.to_json
+          put "/v0/categories/world/canada", { category: attrs.to_json }, env
           last_response.status.must_equal 200
           category2.reload
           category2.facts.count.must_equal 1
@@ -91,7 +96,7 @@ module Facts
           attrs = { category_id: 1, name: "Canada", slug: "canada", facts: [
             { content: "Canada is big." },
           ]}
-          put "/v0/categories/world/canada", :category => attrs.to_json
+          put "/v0/categories/world/canada", { category: attrs.to_json }, env
           last_response.status.must_equal 200
           category2.reload
           category2.facts.count.must_equal 1
@@ -101,7 +106,7 @@ module Facts
         it "removes facts from a category" do
           category2.facts.create! content: "Canada is big."
           attrs = { category_id: 1, name: "Canada", slug: "canada", facts: [] }
-          put "/v0/categories/world/canada", :category => attrs.to_json
+          put "/v0/categories/world/canada", { category: attrs.to_json }, env
           last_response.status.must_equal 200
           category2.reload
           category2.facts.count.must_equal 0
@@ -110,7 +115,7 @@ module Facts
         it "doesn't remove facts from a category on a nil" do
           category2.facts.create! content: "The world is big."
           attrs = { category_id: 1, name: "Canada", slug: "canada", facts: nil }
-          put "/v0/categories/world/canada", :category => attrs.to_json
+          put "/v0/categories/world/canada", { category: attrs.to_json }, env
           last_response.status.must_equal 200
           category2.reload
           category2.facts.count.must_equal 1
@@ -120,7 +125,7 @@ module Facts
           attrs = { category_id: 1, name: "Canada", slug: "canada", categories: [
             { name: "Alberta", slug: "alberta" },
           ]}
-          put "/v0/categories/world/canada", :category => attrs.to_json
+          put "/v0/categories/world/canada", { category: attrs.to_json }, env
           last_response.status.must_equal 200
           category2.reload
           category2.categories.count.must_equal 1
@@ -132,7 +137,7 @@ module Facts
           attrs = { category_id: 1, name: "Canada", slug: "canada", categories: [
             { name: "Alberta", slug: "alberta" },
           ]}
-          put "/v0/categories/world/canada", :category => attrs.to_json
+          put "/v0/categories/world/canada", { category: attrs.to_json }, env
           last_response.status.must_equal 200
           category2.reload
           category2.categories.count.must_equal 1
@@ -142,7 +147,7 @@ module Facts
         it "removes a subcategory" do
           category2.categories.create! name: "Alberta", slug: "alberta"
           attrs = { category_id: 1, name: "Canada", slug: "canada", categories: [] }
-          put "/v0/categories/world/canada", :category => attrs.to_json
+          put "/v0/categories/world/canada", { category: attrs.to_json }, env
           last_response.status.must_equal 200
           category2.reload
           category2.categories.count.must_equal 0
@@ -151,7 +156,7 @@ module Facts
         it "doesn't remove subcategories on a nil" do
           category2.categories.create! name: "Alberta", slug: "alberta"
           attrs = { category_id: 1, name: "Canada", slug: "canada", categories: nil }
-          put "/v0/categories/world/canada", :category => attrs.to_json
+          put "/v0/categories/world/canada", { category: attrs.to_json }, env
           last_response.status.must_equal 200
           category2.reload
           category2.categories.count.must_equal 1
@@ -159,7 +164,7 @@ module Facts
 
         it "allows a special top level category push" do
           attrs = { categories: [] }
-          put "/v0/categories", :category => attrs.to_json
+          put "/v0/categories", { category: attrs.to_json }, env
           last_response.status.must_equal 200
           last_response.body.must_equal ""
           Models::Category.count.must_equal 0

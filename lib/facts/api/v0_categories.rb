@@ -102,7 +102,7 @@ module Facts
         end
 
         post do
-          authenticate!
+          authorized!
           require_params!(:category)
           attrs = params[:category].parse_json
           category = Models::Category.create!(attrs)
@@ -118,7 +118,7 @@ module Facts
         end
 
         put "*path" do
-          authenticate!
+          authorized!
           require_params!(:category)
           attrs = params[:category].parse_json
           category = Models::Category.find_by_path!(params[:path])
@@ -131,7 +131,7 @@ module Facts
 
         # special top level sync
         put do
-          authenticate!
+          authorized!
           require_params!(:category)
           attrs = params[:category].parse_json
           Models::Category.transaction do
@@ -142,7 +142,7 @@ module Facts
         end
 
         delete "*path" do
-          authenticate!
+          authorized!
           category = Models::Category.find_by_path!(params[:path])
           category.destroy
           ""
