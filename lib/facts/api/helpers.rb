@@ -18,7 +18,7 @@ module Facts
       def authorized!
         unless authorized?
           log :not_authorized, credentials: auth_credentials
-          throw :halt, 401
+          error!("401 Unauthorized", 401)
         end
       end
 
