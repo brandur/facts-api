@@ -23,6 +23,20 @@ module Facts
         last_response.body.parse_json.must_equal serialize([fact1, fact2])
       end
 
+      it "gets latest" do
+        mock(Models::Fact).ordered.mock!.limit(50) { [fact1, fact2] }
+        get "/v0/facts/latest"
+        last_response.status.must_equal 200
+        last_response.body.parse_json.must_equal serialize([fact1, fact2])
+      end
+
+      it "gets latest" do
+        mock(Models::Fact).random.mock!.limit(50) { [fact1, fact2] }
+        get "/v0/facts/random"
+        last_response.status.must_equal 200
+        last_response.body.parse_json.must_equal serialize([fact1, fact2])
+      end
+
       it "gets by id" do
         mock(Models::Fact).find!("1") { fact1 }
         get "/v0/facts/1"

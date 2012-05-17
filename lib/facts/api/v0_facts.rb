@@ -20,6 +20,11 @@ module Facts
         end
 
         get :latest do
+          serialize(Models::Fact.ordered.limit(50))
+        end
+
+        get :random do
+          serialize(Models::Fact.random.limit(50))
         end
 
         post do

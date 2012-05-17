@@ -5,6 +5,7 @@ module Facts
       belongs_to :category
       validates_presence_of :category, :content
 
+      scope :ordered, order("created_at DESC")
       scope :random, order("RANDOM()")
       scope :search, lambda { |query|
         where 'facts.content ILIKE ?', "%#{query}%"
