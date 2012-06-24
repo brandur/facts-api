@@ -1,8 +1,6 @@
 module Facts
   module Api
     module Helpers
-      @@mtx = Mutex.new
-
       def auth
         @auth ||= Rack::Auth::Basic::Request.new(request.env)
       end
@@ -16,21 +14,18 @@ module Facts
       end
 
       def authorized!
-        unless authorized?
-          log :not_authorized, credentials: auth_credentials
-          error!("401 Unauthorized", 401)
-        end
+        raise Unauthorized unless authorized?
       end
 
-      def log(event, attrs)
-        str = event.to_s
-        attrs.each { |k, v| str += " #{k}=#{v}" }
-        @@mtx.synchronize { $stdout.puts(str) }
+      def log(action, attrs = {})
+        Slides.log(action, attrs.merge!(id: request.id))
       end
 
       def require_params!(*keys)
         keys.each do |key|
-          error!("Require parameter: #{key}", 422) unless params[key]
+          unless params[key]
+            raise BadRequest("Bad request: require parameter: #{key}")
+          end
         end
       end
     end

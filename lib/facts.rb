@@ -13,6 +13,7 @@ require "facts/serializers/base"
 require "facts/serializers/category_serializer"
 require "facts/serializers/fact_serializer"
 
+require "facts/api/errors"
 require "facts/api/helpers"
 require "facts/api/v0_categories"
 require "facts/api/v0_facts"

@@ -20,21 +20,27 @@ module Facts
         mock(Models::Category).all { [category1, category2] }
         get "/v0/categories"
         last_response.status.must_equal 200
-        last_response.body.parse_json.must_equal serialize([category1, category2])
+        last_json.must_equal serialize([category1, category2])
       end
 
       it "gets top" do
         mock(Models::Category).top { [category1] }
         get "/v0/categories/top"
         last_response.status.must_equal 200
-        last_response.body.parse_json.must_equal serialize([category1])
+        last_json.must_equal serialize([category1])
       end
 
       it "gets by path" do
         mock(Models::Category).find_by_path!("world/canada") { category1 }
         get "/v0/categories/world/canada"
         last_response.status.must_equal 200
-        last_response.body.parse_json.must_equal serialize(category1)
+        last_json.must_equal serialize(category1)
+      end
+
+      it "renders a 404" do
+        get "/v0/categories/does-not-exist"
+        last_response.status.must_equal 404
+        last_json.must_equal({ "error" => "Not found" })
       end
 
       it "requires authentication to create a category" do
@@ -49,7 +55,7 @@ module Facts
         mock(Models::Category).create!(attrs.stringify_keys!) { category2 }
         post "/v0/categories", category: attrs.to_json
         last_response.status.must_equal 201
-        last_response.body.parse_json.must_equal serialize(category2)
+        last_json.must_equal serialize(category2)
       end
 
       it "requires authentication to update a category" do
@@ -66,7 +72,7 @@ module Facts
         mock(category2).update_attributes(attrs.stringify_keys!) { true }
         put "/v0/categories/world/canada", category: attrs.to_json
         last_response.status.must_equal 200
-        last_response.body.parse_json.must_equal serialize(category2)
+        last_json.must_equal serialize(category2)
       end
 
       it "requires authentication to delete a category" do

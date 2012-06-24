@@ -2,7 +2,6 @@ module Facts
   module Api
     class V0Facts < Grape::API
       default_format :json
-      helpers { include Helpers }
       error_format :json
       version 'v0', :using => :path
 
@@ -35,7 +34,7 @@ module Facts
         end
 
         get ":id" do
-          serialize(Models::Fact.find!(params[:id]))
+          serialize(Models::Fact.find_by_id!(params[:id]))
         end
 
         put ":id" do

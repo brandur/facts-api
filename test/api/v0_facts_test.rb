@@ -20,28 +20,34 @@ module Facts
         mock(Models::Fact).all { [fact1, fact2] }
         get "/v0/facts"
         last_response.status.must_equal 200
-        last_response.body.parse_json.must_equal serialize([fact1, fact2])
+        last_json.must_equal serialize([fact1, fact2])
       end
 
       it "gets latest" do
         mock(Models::Fact).ordered.mock!.limit(50) { [fact1, fact2] }
         get "/v0/facts/latest"
         last_response.status.must_equal 200
-        last_response.body.parse_json.must_equal serialize([fact1, fact2])
+        last_json.must_equal serialize([fact1, fact2])
       end
 
       it "gets latest" do
         mock(Models::Fact).random.mock!.limit(50) { [fact1, fact2] }
         get "/v0/facts/random"
         last_response.status.must_equal 200
-        last_response.body.parse_json.must_equal serialize([fact1, fact2])
+        last_json.must_equal serialize([fact1, fact2])
       end
 
       it "gets by id" do
-        mock(Models::Fact).find!("1") { fact1 }
+        mock(Models::Fact).find_by_id!("1") { fact1 }
         get "/v0/facts/1"
         last_response.status.must_equal 200
-        last_response.body.parse_json.must_equal serialize(fact1)
+        last_json.must_equal serialize(fact1)
+      end
+
+      it "renders a 404" do
+        get "/v0/facts/does-not-exist"
+        last_response.status.must_equal 404
+        last_json.must_equal({ "error" => "Not found" })
       end
 
       it "requires authentication to create a fact" do
@@ -56,7 +62,7 @@ module Facts
         mock(Models::Fact).create!(attrs.stringify_keys!) { fact1 }
         post "/v0/facts", { fact: attrs.to_json }
         last_response.status.must_equal 201
-        last_response.body.parse_json.must_equal serialize(fact1)
+        last_json.must_equal serialize(fact1)
       end
 
       it "requires authentication to update a fact" do
@@ -72,7 +78,7 @@ module Facts
         mock(fact1).update_attributes(attrs.stringify_keys!) { true }
         put "/v0/facts/1", fact: attrs.to_json
         last_response.status.must_equal 200
-        last_response.body.parse_json.must_equal serialize(fact1)
+        last_json.must_equal serialize(fact1)
       end
 
       it "requires authentication to delete a fact" do

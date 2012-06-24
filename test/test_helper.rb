@@ -3,6 +3,7 @@ require "minitest/autorun"
 require "turn/autorun"
 require "rack/test"
 require "rr"
+require "slides"
 
 require "facts"
 
@@ -14,6 +15,10 @@ class MiniTest::Spec
   before do
     ActiveRecord::Base.connection.execute("TRUNCATE facts")
     ActiveRecord::Base.connection.execute("TRUNCATE categories")
+  end
+
+  def last_json
+    JSON.parse(last_response.body)
   end
 end
 

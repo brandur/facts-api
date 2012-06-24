@@ -2,10 +2,8 @@ module Facts
   module Api
     class V0Categories < Grape::API
       default_format :json
-      helpers { include Helpers }
       error_format :json
-      rescue_from :all
-      version 'v0', :using => :path
+      version 'v0', using: :path
 
       helpers do
         @@serializer = Serializers::CategorySerializer.new(:api)
