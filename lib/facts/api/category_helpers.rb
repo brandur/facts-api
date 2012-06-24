@@ -41,7 +41,7 @@ module Facts
         end
 
         # delete any categories that aren't supposed to be here anymore
-        categories_not_updated.each{ |id, category| category.destroy }
+        categories_not_updated.each { |id, category| category.destroy }
         merge_stats!(stats, categories_destroyed: categories_not_updated.count)
         stats
       end
@@ -85,7 +85,7 @@ module Facts
         end
 
         # delete any facts that aren't supposed to be here anymore
-        facts_not_updated.each{ |id, fact| fact.destroy }
+        facts_not_updated.each { |id, fact| fact.destroy }
         merge_stats!(stats, facts_destroyed: facts_not_updated.count)
       end
     end
