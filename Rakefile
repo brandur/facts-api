@@ -12,6 +12,11 @@ task :environment do
   Facts::DataHelper.init
 end
 
+task :truncate => :environment do
+  ActiveRecord::Base.connection.execute("TRUNCATE categories")
+  ActiveRecord::Base.connection.execute("TRUNCATE facts")
+end
+
 namespace :db do
   task :migrate => :environment do
     if ENV["STEPS"]
