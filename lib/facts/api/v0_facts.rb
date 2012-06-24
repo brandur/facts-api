@@ -6,11 +6,7 @@ module Facts
       version 'v0', :using => :path
 
       helpers do
-        @@serializer = Serializers::FactSerializer.new(:api)
-
-        def serialize(obj)
-          @@serializer.serialize(obj)
-        end
+        include FactHelpers
       end
 
       resource :facts do
