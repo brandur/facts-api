@@ -47,7 +47,7 @@ module Facts
       def update_category(category, category_attrs)
         stats = { categories_updated: 0 }
         # don't bother updating attributes if it looks like this is a
-        # caegory that we've just created
+        # category that we've just created
         unless category.new_record?
           category.update_attributes(category_attrs) 
           merge_stats!(stats, categories_updated: 1)
