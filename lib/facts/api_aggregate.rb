@@ -15,7 +15,8 @@ module Facts
     end
 
     rescue_from :all do |e|
-      Slides.log(:error, exception: e.inspect, id: request.id)
+      Slides.log(:error, type: e.class.name, message: e.message,
+        id: request.id, backtrace: e.backtrace)
       rack_response(JSON.dump({ error: "Internal server error" }), 500)
     end
 
