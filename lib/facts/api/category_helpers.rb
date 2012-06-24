@@ -10,11 +10,7 @@ module Facts
       end
 
       def log_stats(stats)
-        log(:category_stats,
-          categories_created:   stats[:categories_created],
-          categories_destroyed: stats[:categories_destroyed],
-          facts_created:        stats[:facts_created],
-          facts_destroyed:      stats[:facts_destroyed])
+        log(:category_stats, stats)
       end
 
       def merge_stats!(stats1, stats2 = {})
