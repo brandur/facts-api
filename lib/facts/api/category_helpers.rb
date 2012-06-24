@@ -21,7 +21,6 @@ module Facts
         stats1.merge!(stats2) do |key, val1, val2|
           val1 + val2
         end
-        stats1
       end
 
       def serialize(obj)
