@@ -24,8 +24,7 @@ module Facts
           attrs = params[:category].parse_json
           category = Models::Category.create!(attrs)
           Models::Category.transaction do
-            stats = update_category(category, attrs)
-            log(:category_created, stats)
+            log_stats(update_category(category, attrs))
           end
           serialize(category)
         end
@@ -40,8 +39,7 @@ module Facts
           attrs = params[:category].parse_json
           category = Models::Category.find_by_path!(params[:path])
           Models::Category.transaction do
-            stats = update_category(category, attrs)
-            log(:category_updated, stats)
+            log_stats(update_category(category, attrs))
           end
           serialize(category)
         end
@@ -52,9 +50,8 @@ module Facts
           require_params!(:category)
           attrs = params[:category].parse_json
           Models::Category.transaction do
-            stats = update_categories(CategoryHelpers::TopCategory,
-              attrs["categories"])
-            log(:category_updated, stats)
+            log_stats(update_categories(CategoryHelpers::TopCategory,
+              attrs["categories"]))
           end
           ""
         end
