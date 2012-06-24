@@ -25,9 +25,11 @@ module Facts
 
       def update_categories(category, category_attrs_arr)
         stats = { categories_created: 0 }
-        categories_not_updated = Hash[*category.categories.map{ |c| [c.id, c]}.flatten]
+        categories = category.categories.all(:include => :facts)
+        categories_not_updated = Hash[*categories.map { |c| [c.id, c]}.flatten]
         category_attrs_arr.each do |category_attrs|
-          new_category = category.categories.find_by_slug(category_attrs["slug"], include: :facts)
+          new_category = categories.
+            select { |c| c.slug == category_attrs["slug"] }.first
           unless new_category
             new_category = category.categories.create!(category_attrs)
             merge_stats!(stats, categories_created: 1)
@@ -71,7 +73,7 @@ module Facts
       def update_facts(category, fact_attrs_arr)
         stats = { facts_created: 0 }
         facts = category.facts.all
-        facts_not_updated = Hash[*facts.map{ |f| [f.id, f]}.flatten]
+        facts_not_updated = Hash[*facts.map { |f| [f.id, f]}.flatten]
         fact_attrs_arr.each do |fact_attrs|
           fact = facts.select { |f| f.content == fact_attrs["content"] }.first
           unless fact
