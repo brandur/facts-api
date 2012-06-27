@@ -7,7 +7,7 @@ $: << "lib"
 require "facts"
 
 DB = Sequel.connect(Facts::Config.database_url)
-DB.loggers << Logger.new($stdout)
+#DB.loggers << Logger.new($stdout)
 require "facts/models/category"
 require "facts/models/fact"
 
@@ -21,6 +21,6 @@ task :environment do
 end
 
 task :truncate => :environment do
-  Sequel::Model.db["TRUNCATE facts"]
-  Sequel::Model.db["TRUNCATE categories"]
+  Facts::Models::Fact.delete
+  Facts::Models::Category.delete
 end
