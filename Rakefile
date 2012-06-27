@@ -6,11 +6,6 @@ require "rake/testtask"
 $: << "lib"
 require "facts"
 
-DB = Sequel.connect(Facts::Config.database_url)
-#DB.loggers << Logger.new($stdout)
-require "facts/models/category"
-require "facts/models/fact"
-
 Rake::TestTask.new do |t|
   t.libs.push "lib", "test"
   t.test_files = FileList['test/**/*_test.rb']
@@ -18,9 +13,13 @@ Rake::TestTask.new do |t|
 end
 
 task :environment do
+  DB = Sequel.connect(Facts::Config.database_url)
+  require "facts/models/category"
+  require "facts/models/fact"
 end
 
 task :truncate => :environment do
   Facts::Models::Fact.delete
   Facts::Models::Category.delete
+  puts "Truncated facts/categories"
 end
