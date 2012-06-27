@@ -3,11 +3,7 @@ require "test_helper"
 module Facts
   module Models
     describe Fact do
-      let(:fact) do
-        Models::Fact.new(id: 1, content: "The world is **big**.").tap { |f|
-          f.category = Models::Category.new(id: 1, name: 'World', slug: 'world')
-        }
-      end
+      let(:fact) { Fact.new(id: 1, category_id: 1, content: "The world is **big**.") }
 
       it "is valid" do
         fact.valid?.must_equal true
@@ -18,8 +14,11 @@ module Facts
       end
 
       describe "scopes" do
+        let(:category)  { Category.new(id: 1, name: "World", slug: "world") }
+
         before do
-          fact.save if fact.new?
+          category.save
+          fact.save
         end
 
         it "has random scope" do

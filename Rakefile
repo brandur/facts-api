@@ -24,21 +24,3 @@ task :truncate => :environment do
   Sequel::Model.db["TRUNCATE facts"]
   Sequel::Model.db["TRUNCATE categories"]
 end
-
-namespace :db do
-  task :migrate => :environment do
-    if ENV["STEPS"]
-      ActiveRecord::Migrator.forward("db/migrate", ENV["STEPS"].to_i)
-    else
-      ActiveRecord::Migrator.migrate("db/migrate", ENV["VERSION"])
-    end
-  end
-
-  task :rollback => :environment do
-    if ENV["STEPS"]
-      ActiveRecord::Migrator.rollback("db/migrate", ENV["STEPS"].to_i)
-    else
-      ActiveRecord::Migrator.down("db/migrate", ENV["VERSION"])
-    end
-  end
-end

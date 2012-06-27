@@ -32,7 +32,7 @@ module Facts
 
       def validate
         super
-        validates_presence [:category, :content]
+        validates_presence [:category_id, :content]
       end
     end
   end
