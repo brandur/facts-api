@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+#
+require "irb"
+require "irb/completion"
+require "bundler/setup"
+Bundler.require
+
+$: << "./lib"
+require "facts"
+
+DB = Sequel.connect(Facts::Config.database_url)
+require "facts/models/category"
+require "facts/models/fact"
+
+IRB.start
