@@ -25,24 +25,27 @@ module Facts
         eager(descendants: :facts).filter(category_id: nil)
       end
 
-      # @TODO: complete rewrite
       def self.find_by_path!(path)
-        slugs = path.split(%r{/})
+        slugs = path.split(%r{/}).reverse
         query = eager(:ancestors, descendants: :facts).filter(slug: slugs.first)
-        slugs[1..slugs.count].each { |s| query = query.or(slug: s) }
 
-        category = nil
         categories = query.all
-        slugs.each do |slug|
-          category = unless category
-            # top-level, so first part of slug must be unique
-            categories.detect { |c| c.slug == slug }
-          else
-            categories.detect { |c| c.slug == slug && c.category_id == category.id }
+        leaf = nil
+
+        categories.each do |category|
+          leaf = category
+          slugs.each do |slug|
+            if category.slug == slug
+              category = category.parent
+            else
+              category = nil
+              break
+            end
           end
-          raise NotFound unless category
+          break if category
         end
-        category
+        raise NotFound unless leaf
+        leaf
       end
 
       def category
