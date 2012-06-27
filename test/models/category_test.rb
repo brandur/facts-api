@@ -4,8 +4,10 @@ module Facts
   module Models
     describe Category do
       let(:category)  { Category.new(name: "World", slug: "world") }
-      let(:category2) { Category.new(name: "Canada", slug: "canada", parent: category) }
-      let(:category3) { Category.new(name: "Alberta", slug: "alberta", parent: category2) }
+      let(:category2) {
+        Category.new(name: "Canada", slug: "canada", parent: category) }
+      let(:category3) {
+        Category.new(name: "Alberta", slug: "alberta", parent: category2) }
 
       it "is valid" do
         category.valid?.must_equal true
@@ -44,8 +46,8 @@ module Facts
         end
 
         it "raises an error when using find_by_path!" do
-          lambda{ Category.find_by_path!("world/canada/alberta/calgary") }.must_raise \
-            NotFound
+          lambda{ Category.find_by_path!("world/canada/alberta/calgary") }.
+            must_raise NotFound
         end
       end
 
