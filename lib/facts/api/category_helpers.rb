@@ -4,7 +4,7 @@ module Facts
       @@serializer = Serializers::CategorySerializer.new(:api)
 
       class TopCategory
-        def self.categories
+        def self.children
           Models::Category.top
         end
       end
@@ -25,13 +25,14 @@ module Facts
 
       def update_categories(category, category_attrs_arr)
         stats = { categories_created: 0 }
-        categories = category.categories.all(:include => :facts)
+        categories = category.children
         categories_not_updated = Hash[*categories.map { |c| [c.id, c]}.flatten]
         category_attrs_arr.each do |category_attrs|
           new_category = categories.
             select { |c| c.slug == category_attrs["slug"] }.first
           unless new_category
-            new_category = category.categories.create!(category_attrs)
+            new_category = Models::Category.create(
+              category_attrs.merge(parent: category))
             merge_stats!(stats, categories_created: 1)
           end
 
@@ -48,20 +49,23 @@ module Facts
 
       def update_category(category, category_attrs)
         stats = { categories_updated: 0 }
+
+        category_attrs_arr = category_attrs.delete("categories")
+        fact_attrs_arr = category_attrs.delete("facts")
+
         # don't bother updating attributes if it looks like this is a
         # category that we've just created
-        unless category.new_record?
-          category.update_attributes(category_attrs) 
+        unless category.new?
+          puts "updating category keys: #{category_attrs.keys}"
+          category.update(category_attrs)
           merge_stats!(stats, categories_updated: 1)
         end
 
-        category_attrs_arr = category_attrs.delete("categories")
         if category_attrs_arr
           sub_stats = update_categories(category, category_attrs_arr) 
           merge_stats!(stats, sub_stats)
         end
 
-        fact_attrs_arr = category_attrs.delete("facts")
         if fact_attrs_arr
           sub_stats = update_facts(category, fact_attrs_arr) 
           merge_stats!(stats, sub_stats)
@@ -72,12 +76,12 @@ module Facts
 
       def update_facts(category, fact_attrs_arr)
         stats = { facts_created: 0 }
-        facts = category.facts.all
+        facts = category.facts
         facts_not_updated = Hash[*facts.map { |f| [f.id, f]}.flatten]
         fact_attrs_arr.each do |fact_attrs|
           fact = facts.select { |f| f.content == fact_attrs["content"] }.first
           unless fact
-            category.facts.create!(fact_attrs)
+            Models::Fact.create(fact_attrs.merge(category: category))
             merge_stats!(stats, facts_created: 1)
           else
             facts_not_updated.delete(fact.id)

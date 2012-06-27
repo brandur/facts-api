@@ -1,20 +1,38 @@
 module Facts
   module Models
-    class Fact < ActiveRecord::Base
-      attr_accessible :category_id, :content
-      belongs_to :category
-      validates_presence_of :category, :content
+    class Fact < Sequel::Model
+      plugin :timestamps
+      plugin :validation_helpers
 
-      scope :ordered, order("created_at DESC")
-      scope :random, order("RANDOM()")
-      scope :search, lambda { |query|
-        where 'facts.content ILIKE ?', "%#{query}%"
-      }
+      #set_allowed_columns :category_id, :content
+
+      many_to_one :category
+
+      def self.find!(id)
+        first(id: id) || raise(NotFound)
+      end
+
+      def self.ordered
+        order(:created_at)
+      end
+
+      def self.random
+        order("RANDOM()".lit)
+      end
+
+      def self.search(query)
+        filter('facts.content ILIKE ?', "%#{query}%")
+      end
 
       def content_html
         renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, 
           :fenced_code_blocks => true, :hard_wrap => true)
         renderer.render(content)
+      end
+
+      def validate
+        super
+        validates_presence [:category, :content]
       end
     end
   end

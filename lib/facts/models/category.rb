@@ -1,47 +1,71 @@
 module Facts
   module Models
-    class Category < ActiveRecord::Base
-      attr_accessible :category_id, :name, :slug
-      belongs_to :category
-      has_many :categories, :dependent => :destroy
+    class Category < Sequel::Model
+      plugin :rcte_tree, key: :category_id
+      plugin :timestamps
+      plugin :validation_helpers
 
-      has_many :facts
+      #set_allowed_columns :category_id, :name, :slug
 
-      validates :name, presence: true
-      validates :slug, presence: true, format: %r{^[a-z0-9][a-z0-9-]*[a-z0-9]$}
-      validates_uniqueness_of :slug, scope: :category_id
+      one_to_many :facts
 
-      default_scope :order => :name
-      scope :top, where(:category_id => nil)
-      scope :search, lambda { |query|
-        where 'categories.name ILIKE ?', "%#{query}%"
-      }
-
-      def self.find_by_path(path)
-        slugs = path.split(%r{/}).reverse
-        categories = arel_table
-        query = categories.where(categories[:slug].eq(slugs.shift))
-        slugs.each_with_index do |slug, i|
-          parent = arel_table.alias("categories#{i}")
-          query = query.join(parent).on(categories[:category_id].eq(parent[:id])).
-            where(parent[:slug].eq(slug))
-          categories = parent
-        end
-        query = query.project(Arel.sql("categories.*")).take(1)
-        sql = query.to_sql
-        find_by_sql(sql).first
+      def self.find!(id)
+        first(id: id) || raise(NotFound)
       end
 
+      def self.ordered
+        order(:name)
+      end
+
+      def self.search(query)
+        filter(:name.qualify(:categories).ilike("%#{query}%"))
+      end
+
+      def self.top
+        eager(descendants: :facts).filter(category_id: nil)
+      end
+
+      # @TODO: complete rewrite
       def self.find_by_path!(path)
-        find_by_path(path) or raise ActiveRecord::RecordNotFound
+        slugs = path.split(%r{/})
+        query = eager(:ancestors, descendants: :facts).filter(slug: slugs.first)
+        slugs[1..slugs.count].each { |s| query = query.or(slug: s) }
+
+        category = nil
+        categories = query.all
+        slugs.each do |slug|
+          category = unless category
+            # top-level, so first part of slug must be unique
+            categories.detect { |c| c.slug == slug }
+          else
+            categories.detect { |c| c.slug == slug && c.category_id == category.id }
+          end
+          raise NotFound unless category
+        end
+        category
+      end
+
+      def category
+        parent
+      end
+
+      def categories
+        children
       end
 
       def path
-        (category ? "#{category.path}/" : "") + slug
+        (parent ? "#{parent.path}/" : "") + slug
       end
 
       def to_param
         path
+      end
+
+      def validate
+        super
+        validates_presence [:name, :slug]
+        validates_format %r{^[a-z0-9][a-z0-9-]*[a-z0-9]$}, [:slug]
+        validates_unique [:slug] { |ds| ds.filter(category_id: category_id) }
       end
     end
   end

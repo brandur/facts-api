@@ -3,13 +3,9 @@ require "test_helper"
 module Facts
   module Models
     describe Category do
-      let(:category) do
-        Models::Category.new(name: "World", slug: "world").tap do |c|
-          c.categories.new(name: "Canada", slug: "canada").tap do |c2|
-            c2.categories.new(name: "Alberta", slug: "alberta")
-          end
-        end
-      end
+      let(:category)  { Category.new(name: "World", slug: "world") }
+      let(:category2) { Category.new(name: "Canada", slug: "canada", parent: category) }
+      let(:category3) { Category.new(name: "Alberta", slug: "alberta", parent: category2) }
 
       it "is valid" do
         category.valid?.must_equal true
@@ -32,32 +28,32 @@ module Facts
 
       describe "paths" do
         before do
-          category.save!
+          category.save
+          category2.save
+          category3.save
         end
 
         it "has a path" do
           category.path.must_equal "world"
-          category.categories.first.path.must_equal "world/canada"
+          category.children.first.path.must_equal "world/canada"
         end
 
         it "finds categories by path" do
-          Category.find_by_path("world/canada").slug.must_equal "canada"
-          Category.find_by_path("world/canada/alberta").slug.must_equal "alberta"
-        end
-
-        it "doesn't find categories that don't exist by path" do
-          Category.find_by_path("world/canada/alberta/calgary").must_be_nil
+          Category.find_by_path!("world/canada").slug.must_equal "canada"
+          Category.find_by_path!("world/canada/alberta").slug.must_equal "alberta"
         end
 
         it "raises an error when using find_by_path!" do
           lambda{ Category.find_by_path!("world/canada/alberta/calgary") }.must_raise \
-            ActiveRecord::RecordNotFound
+            NotFound
         end
       end
 
       describe "scopes" do
         before do
-          category.save!
+          category.save
+          category2.save
+          category3.save
         end
 
         it "has top scope" do

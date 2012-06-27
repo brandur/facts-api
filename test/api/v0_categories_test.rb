@@ -52,7 +52,7 @@ module Facts
       it "creates new categories" do
         authorize "", "secret"
         attrs = { category_id: 1, name: "Canada", slug: "canada" }
-        mock(Models::Category).create!(attrs.stringify_keys!) { category2 }
+        mock(Models::Category).create(attrs.stringify_keys!) { category2 }
         post "/v0/categories", category: attrs.to_json
         last_response.status.must_equal 201
         last_json.must_equal serialize(category2)
@@ -67,9 +67,9 @@ module Facts
       it "updates existing categories" do
         authorize "", "secret"
         attrs = { category_id: 1, name: "Canada", slug: "canada" }
-        stub(category2).new_record? { false }
+        stub(category2).new? { false }
         mock(Models::Category).find_by_path!("world/canada") { category2 }
-        mock(category2).update_attributes(attrs.stringify_keys!) { true }
+        mock(category2).update(attrs.stringify_keys!) { true }
         put "/v0/categories/world/canada", category: attrs.to_json
         last_response.status.must_equal 200
         last_json.must_equal serialize(category2)
@@ -91,9 +91,9 @@ module Facts
 
       describe "recursive update" do
         before do
-          category1.save!
+          category1.save
           category1.reload
-          category2.save!
+          category2.save
         end
 
         it "adds facts to a category" do
@@ -110,7 +110,7 @@ module Facts
 
         it "keeps an existing fact" do
           authorize "", "secret"
-          fact = category2.facts.create! content: "Canada is big."
+          fact = Models::Fact.create content: "Canada is big.", category_id: category2.id
           attrs = { category_id: 1, name: "Canada", slug: "canada", facts: [
             { content: "Canada is big." },
           ]}
@@ -123,7 +123,7 @@ module Facts
 
         it "removes facts from a category" do
           authorize "", "secret"
-          category2.facts.create! content: "Canada is big."
+          Models::Fact.create content: "Canada is big.", category_id: category2.id
           attrs = { category_id: 1, name: "Canada", slug: "canada", facts: [] }
           put "/v0/categories/world/canada", category: attrs.to_json
           last_response.status.must_equal 200
@@ -133,7 +133,7 @@ module Facts
 
         it "doesn't remove facts from a category on a nil" do
           authorize "", "secret"
-          category2.facts.create! content: "The world is big."
+          Models::Fact.create content: "The world is big.", category_id: category2.id
           attrs = { category_id: 1, name: "Canada", slug: "canada", facts: nil }
           put "/v0/categories/world/canada", category: attrs.to_json
           last_response.status.must_equal 200
@@ -155,7 +155,7 @@ module Facts
 
         it "keeps an existing subcategory" do
           authorize "", "secret"
-          category = category2.categories.create! name: "Alberta", slug: "alberta"
+          category = Models::Category.create name: "Alberta", slug: "alberta", category_id: category2.id
           attrs = { category_id: 1, name: "Canada", slug: "canada", categories: [
             { name: "Alberta", slug: "alberta" },
           ]}
@@ -168,7 +168,7 @@ module Facts
 
         it "removes a subcategory" do
           authorize "", "secret"
-          category2.categories.create! name: "Alberta", slug: "alberta"
+          Models::Category.create name: "Alberta", slug: "alberta", category_id: category2.id
           attrs = { category_id: 1, name: "Canada", slug: "canada", categories: [] }
           put "/v0/categories/world/canada", category: attrs.to_json
           last_response.status.must_equal 200
@@ -178,7 +178,7 @@ module Facts
 
         it "doesn't remove subcategories on a nil" do
           authorize "", "secret"
-          category2.categories.create! name: "Alberta", slug: "alberta"
+          Models::Category.create name: "Alberta", slug: "alberta", category_id: category2.id
           attrs = { category_id: 1, name: "Canada", slug: "canada", categories: nil }
           put "/v0/categories/world/canada", category: attrs.to_json
           last_response.status.must_equal 200

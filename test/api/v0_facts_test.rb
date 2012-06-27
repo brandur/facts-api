@@ -38,14 +38,14 @@ module Facts
       end
 
       it "gets by id" do
-        mock(Models::Fact).find_by_id!("1") { fact1 }
+        mock(Models::Fact).find!("1") { fact1 }
         get "/v0/facts/1"
         last_response.status.must_equal 200
         last_json.must_equal serialize(fact1)
       end
 
       it "renders a 404" do
-        get "/v0/facts/does-not-exist"
+        get "/v0/facts/7777"
         last_response.status.must_equal 404
         last_json.must_equal({ "error" => "Not found" })
       end
@@ -75,7 +75,7 @@ module Facts
         authorize "", "secret"
         attrs = { content: "The world is very big." }
         mock(Models::Fact).find!("1") { fact1 }
-        mock(fact1).update_attributes(attrs.stringify_keys!) { true }
+        mock(fact1).update(attrs.stringify_keys!) { true }
         put "/v0/facts/1", fact: attrs.to_json
         last_response.status.must_equal 200
         last_json.must_equal serialize(fact1)

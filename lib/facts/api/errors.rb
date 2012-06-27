@@ -8,19 +8,26 @@ module Facts
   end
 
   class BadRequest < ApiError
-    def initialize(message = nil)
+    def initialize(message=nil)
       super(message || "Bad request", 400)
     end
   end
 
+  class NotFound < ApiError
+    def initialize(message=nil)
+      super(message || "Not found", 404)
+    end
+  end
+
   class Unauthorized < ApiError
-    def initialize(message = nil)
+    def initialize(message=nil)
       super(message || "Unauthorized", 401)
     end
   end
 
   API_ERRORS = [
     BadRequest,
+    NotFound,
     Unauthorized,
   ]
 end

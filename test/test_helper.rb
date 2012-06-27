@@ -1,20 +1,26 @@
+require "bundler/setup"
+Bundler.require(:default, :test)
+
 require "minitest/spec"
 require "minitest/autorun"
 require "turn/autorun"
-require "rack/test"
-require "rr"
-require "slides"
 
 require "facts"
 
-ActiveRecord::Base.establish_connection database: "facts-api-test", adapter: "postgresql"
+ENV["DATABASE_URL"] = "postgres://localhost/facts-api-test"
+DB = Sequel.connect(Facts::Config.database_url)
+require "facts/models/category"
+require "facts/models/fact"
 
 class MiniTest::Spec
   include RR::Adapters::TestUnit
 
   before do
-    ActiveRecord::Base.connection.execute("TRUNCATE facts")
-    ActiveRecord::Base.connection.execute("TRUNCATE categories")
+    Facts::Models::Fact.delete
+    Facts::Models::Category.delete
+
+    Facts::Models::Fact.unrestrict_primary_key
+    Facts::Models::Category.unrestrict_primary_key
   end
 
   def last_json

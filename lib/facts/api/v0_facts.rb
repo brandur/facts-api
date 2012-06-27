@@ -30,7 +30,7 @@ module Facts
         end
 
         get ":id" do
-          serialize(Models::Fact.find_by_id!(params[:id]))
+          serialize(Models::Fact.find!(params[:id]))
         end
 
         put ":id" do
@@ -38,7 +38,7 @@ module Facts
           require_params!(:fact)
           fact = Models::Fact.find!(params[:id])
           attrs = params[:fact].parse_json
-          fact.update_attributes(attrs)
+          fact.update(attrs)
           serialize(fact)
         end
 

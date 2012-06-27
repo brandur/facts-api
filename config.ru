@@ -6,7 +6,10 @@ require "facts"
 
 $stdout.sync = true
 
-Facts::DataHelper.init
+DB = Sequel.connect(Facts::Config.database_url)
+DB.loggers << Logger.new($stdout)
+require "facts/models/category"
+require "facts/models/fact"
 
 use Rack::Instruments
 run Facts::ApiAggregate

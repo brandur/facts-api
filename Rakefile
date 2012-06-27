@@ -1,6 +1,15 @@
+require "bundler/setup"
+Bundler.require
+
+require "rake/testtask"
+
 $: << "lib"
 require "facts"
-require "rake/testtask"
+
+DB = Sequel.connect(Facts::Config.database_url)
+DB.loggers << Logger.new($stdout)
+require "facts/models/category"
+require "facts/models/fact"
 
 Rake::TestTask.new do |t|
   t.libs.push "lib", "test"
@@ -9,12 +18,11 @@ Rake::TestTask.new do |t|
 end
 
 task :environment do
-  Facts::DataHelper.init
 end
 
 task :truncate => :environment do
-  ActiveRecord::Base.connection.execute("TRUNCATE categories")
-  ActiveRecord::Base.connection.execute("TRUNCATE facts")
+  Sequel::Model.db["TRUNCATE facts"]
+  Sequel::Model.db["TRUNCATE categories"]
 end
 
 namespace :db do

@@ -1,3 +1,9 @@
+class NilClass
+  def blank?
+    true
+  end
+end
+
 module Rack
   class Request
     def id
@@ -8,7 +14,6 @@ end
 
 class String
   def blank?
-    puts "called blank"
     respond_to?(:empty?) ? empty? : !self
   end
 

@@ -4,9 +4,9 @@ module Facts
   module Models
     describe Fact do
       let(:fact) do
-        Models::Fact.new(content: "The world is **big**.").tap do |f|
-          f.category = Models::Category.new(name: 'World', slug: 'world')
-        end
+        Models::Fact.new(id: 1, content: "The world is **big**.").tap { |f|
+          f.category = Models::Category.new(id: 1, name: 'World', slug: 'world')
+        }
       end
 
       it "is valid" do
@@ -19,7 +19,7 @@ module Facts
 
       describe "scopes" do
         before do
-          fact.save if fact.new_record?
+          fact.save if fact.new?
         end
 
         it "has random scope" do
