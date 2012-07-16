@@ -30,22 +30,22 @@ class MiniTest::Spec
   end
 end
 
-class Hash
-  def stringify_keys
-    keys.each do |key|
-      value = delete(key)
-      value.stringify_keys if value.respond_to?(:stringify_keys)
-      self[key.to_s] = value
-    end
-    self
+def stringify_keys(hash)
+  return hash unless hash.is_a?(Hash)
+
+  hash.keys.each do |key|
+    value = stringify_keys(hash.delete(key))
+    value = value.map { |e| stringify_keys(e) } if value.is_a?(Array)
+    hash[key.to_s] = value
   end
+  hash
 end
 
 def serialize_generic(serializer, form, obj)
   out = serializer.new(form).serialize(obj)
   if obj.respond_to?(:map)
-    out.map{ |o| o.stringify_keys }
+    out.map{ |o| stringify_keys(o) }
   else
-    out.stringify_keys
+    stringify_keys(out)
   end
 end

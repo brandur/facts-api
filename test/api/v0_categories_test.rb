@@ -46,8 +46,8 @@ module Facts
         attrs = { name: "Canada", slug: "canada" }
         post "/categories", category: attrs.to_json
         last_response.status.must_equal 201
-        last_json.must_equal({ id: last_json["id"], name: "Canada",
-          slug: "canada", facts: [] }.stringify_keys)
+        last_json.must_equal(stringify_keys({ id: last_json["id"], name: "Canada",
+          slug: "canada", facts: [] }))
       end
 
       it "creates new categories with facts" do
@@ -57,10 +57,10 @@ module Facts
         ] }
         post "/categories", category: attrs.to_json
         last_response.status.must_equal 201
-        last_json.must_equal({ id: last_json["id"], name: "Canada",
+        last_json.must_equal(stringify_keys({ id: last_json["id"], name: "Canada",
           slug: "canada", facts: [
             id: last_json["facts"][0]["id"], content: "Canada is very big."
-          ] }.stringify_keys)
+          ] }))
       end
 
       it "requires authentication to update a category" do
@@ -75,8 +75,8 @@ module Facts
         attrs = { name: "Canada", slug: "canada" }
         put "/categories/canada", category: attrs.to_json
         last_response.status.must_equal 200
-        last_json.must_equal({ id: last_json["id"], name: "Canada",
-          slug: "canada", facts: [] }.stringify_keys)
+        last_json.must_equal(stringify_keys({ id: last_json["id"], name: "Canada",
+          slug: "canada", facts: [] }))
       end
 
       it "requires authentication to delete a category" do
