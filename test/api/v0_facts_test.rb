@@ -45,6 +45,12 @@ module Facts
         last_json.must_equal({ "error" => "Not found" })
       end
 
+      it "is able to handle a non-integer" do
+        get "/facts/may-error-the-database"
+        last_response.status.must_equal 404
+        last_json.must_equal({ "error" => "Not found" })
+      end
+
       it "requires authentication to create a fact" do
         category.save
         attrs = { category_id: category.id, content: "The world is big." }

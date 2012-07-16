@@ -30,14 +30,14 @@ module Facts
         end
 
         get ":id" do
-          fact = Models::Fact.first(id: params[:id]) || raise(NotFound)
+          fact = Models::Fact.first(id: params[:id].to_i) || raise(NotFound)
           serialize(fact)
         end
 
         put ":id" do
           authorized!
           require_params!(:fact)
-          fact = Models::Fact.first(id: params[:id]) || raise(NotFound)
+          fact = Models::Fact.first(id: params[:id].to_i) || raise(NotFound)
           attrs = params[:fact].parse_json
           fact.update(attrs)
           serialize(fact)
@@ -45,7 +45,7 @@ module Facts
 
         delete ":id" do
           authorized!
-          fact = Models::Fact.first(id: params[:id]) || raise(NotFound)
+          fact = Models::Fact.first(id: params[:id].to_i) || raise(NotFound)
           fact.destroy
           ""
         end
