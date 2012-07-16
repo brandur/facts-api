@@ -10,6 +10,14 @@ module Facts
       @http_api_key ||= env!("FACTS_HTTP_API_KEY")
     end
 
+    def production?
+      rack_env == "production"
+    end
+
+    def rack_env
+      @env ||= env("RACK_ENV") || "production"
+    end
+
     private
 
     def env(k)
