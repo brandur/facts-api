@@ -31,6 +31,13 @@ module Facts
         last_json.must_equal serialize([fact1, fact2])
       end
 
+      it "gets random" do
+        mock(Models::Fact).random.mock!.limit(50) { [fact1, fact2] }
+        get "/facts/random"
+        last_response.status.must_equal 200
+        last_json.must_equal serialize([fact1, fact2])
+      end
+
       it "gets by id" do
         category.save
         fact1.save
