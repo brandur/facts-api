@@ -3,7 +3,7 @@ module Facts
     class V0Categories < Grape::API
       default_format :json
       error_format :json
-      version 'v0', using: :path
+      version 'v0', using: :header
 
       helpers do
         include CategoryHelpers
@@ -14,52 +14,43 @@ module Facts
           serialize(Models::Category.all)
         end
 
-        get :top do
-          serialize(Models::Category.top)
-        end
-
         post do
           authorized!
           require_params!(:category)
           attrs = params[:category].parse_json
-          category = Models::Category.create(attrs)
+          category = nil
           DB.transaction do
-            log_stats(update_category(category, attrs))
+            facts = attrs.delete("facts")
+            category = Models::Category.create(attrs)
+            update_facts(category, facts) if facts
           end
           serialize(category)
         end
 
-        get "*path" do
-          serialize(Models::Category.find_by_path!(params[:path]))
+        get ":slug" do
+          category = Models::Category.eager(:facts).
+            first(slug: params[:slug]) || raise(NotFound)
+          serialize(category)
         end
 
-        put "*path" do
+        put ":slug" do
           authorized!
           require_params!(:category)
           attrs = params[:category].parse_json
-          category = Models::Category.find_by_path!(params[:path], true)
+          category = Models::Category.eager(:facts).
+            first(slug: params[:slug]) || raise(NotFound)
           DB.transaction do
-            log_stats(update_category(category, attrs))
+            facts = attrs.delete("facts")
+            category.update(attrs)
+            update_facts(category, facts) if facts
           end
           serialize(category)
         end
 
-        # special top level sync
-        put do
+        delete ":slug" do
           authorized!
-          require_params!(:category)
-          attrs = params[:category].parse_json
-          DB.transaction do
-            log_stats(update_categories(CategoryHelpers::TopCategory.new,
-              attrs["categories"]))
-            raise "fuck you sequel"
-          end
-          ""
-        end
-
-        delete "*path" do
-          authorized!
-          category = Models::Category.find_by_path!(params[:path])
+          category = Models::Category.first(slug: params[:slug]) ||
+            raise(NotFound)
           category.destroy
           ""
         end

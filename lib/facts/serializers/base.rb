@@ -11,8 +11,17 @@ module Facts
         elsif obj.respond_to?(:map)
           obj.map{ |o| serialize(o) }
         else
-          send(@form, obj)
+          prepare(send(@form, obj))
         end
+      end
+
+      private
+
+      def prepare(hash)
+        hash.each do |k, v|
+          hash[k] = v.iso8601 if v.respond_to?(:iso8601)
+        end
+        hash
       end
     end
   end

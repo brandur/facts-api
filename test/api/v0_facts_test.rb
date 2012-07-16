@@ -9,8 +9,9 @@ module Facts
         ENV["FACTS_HTTP_API_KEY"] = "secret"
       end
 
-      let(:fact1) { Models::Fact.new(id: 1, content: "The world is big.") }
-      let(:fact2) { Models::Fact.new(id: 2, content: "The world is round.") }
+      let(:category) { Models::Category.new(id: 1, name: "World", slug: "world") }
+      let(:fact1) { Models::Fact.new(id: 1, category: category, content: "The world is big.") }
+      let(:fact2) { Models::Fact.new(id: 2, category: category, content: "The world is round.") }
 
       def app
         Facts::ApiAggregate
@@ -18,79 +19,84 @@ module Facts
 
       it "gets all" do
         mock(Models::Fact).all { [fact1, fact2] }
-        get "/v0/facts"
+        get "/facts"
         last_response.status.must_equal 200
         last_json.must_equal serialize([fact1, fact2])
       end
 
       it "gets latest" do
         mock(Models::Fact).ordered.mock!.limit(50) { [fact1, fact2] }
-        get "/v0/facts/latest"
-        last_response.status.must_equal 200
-        last_json.must_equal serialize([fact1, fact2])
-      end
-
-      it "gets latest" do
-        mock(Models::Fact).random.mock!.limit(50) { [fact1, fact2] }
-        get "/v0/facts/random"
+        get "/facts/latest"
         last_response.status.must_equal 200
         last_json.must_equal serialize([fact1, fact2])
       end
 
       it "gets by id" do
-        mock(Models::Fact).find!("1") { fact1 }
-        get "/v0/facts/1"
+        category.save
+        fact1.save
+        get "/facts/#{fact1.id}"
         last_response.status.must_equal 200
         last_json.must_equal serialize(fact1)
       end
 
       it "renders a 404" do
-        get "/v0/facts/7777"
+        get "/facts/7777"
         last_response.status.must_equal 404
         last_json.must_equal({ "error" => "Not found" })
       end
 
       it "requires authentication to create a fact" do
-        attrs = { category_id: 1, content: "The world is big." }
-        post "/v0/facts", { fact: attrs.to_json }
+        category.save
+        attrs = { category_id: category.id, content: "The world is big." }
+        post "/facts", { fact: attrs.to_json }
         last_response.status.must_equal 401
       end
 
       it "creates new facts" do
+        category.save
         authorize "", "secret"
-        attrs = { category_id: 1, content: "The world is big." }
-        mock(Models::Fact).create!(attrs.stringify_keys!) { fact1 }
-        post "/v0/facts", { fact: attrs.to_json }
+        attrs = { category_id: category.id, content: "The world is big." }
+        post "/facts", { fact: attrs.to_json }
         last_response.status.must_equal 201
-        last_json.must_equal serialize(fact1)
+        last_json.must_equal({ id: last_json["id"], content: "The world is big.",
+          created_at: last_json["created_at"],
+          category: { id: last_json["category"]["id"], name: "World", slug: "world" }
+        }.stringify_keys)
       end
 
       it "requires authentication to update a fact" do
-        attrs = { content: "The world is very big." }
-        put "/v0/facts/1", fact: attrs.to_json
+        category.save
+        fact1.save
+        attrs = { category_id: category.id, content: "The world is very big." }
+        put "/facts/#{fact1.id}", fact: attrs.to_json
         last_response.status.must_equal 401
       end
 
       it "updates existing facts" do
+        category.save
+        fact1.save
         authorize "", "secret"
-        attrs = { content: "The world is very big." }
-        mock(Models::Fact).find!("1") { fact1 }
-        mock(fact1).update(attrs.stringify_keys!) { true }
-        put "/v0/facts/1", fact: attrs.to_json
+        attrs = { category_id: category.id, content: "The world is very big." }
+        put "/facts/#{fact1.id}", fact: attrs.to_json
         last_response.status.must_equal 200
-        last_json.must_equal serialize(fact1)
+        last_json.must_equal({ id: last_json["id"], content: "The world is very big.",
+          created_at: last_json["created_at"],
+          category: { id: last_json["category"]["id"], name: "World", slug: "world" }
+        }.stringify_keys)
       end
 
       it "requires authentication to delete a fact" do
-        delete "/v0/facts/1"
+        category.save
+        fact1.save
+        delete "/facts/#{fact1.id}"
         last_response.status.must_equal 401
       end
 
       it "deletes a fact" do
+        category.save
+        fact1.save
         authorize "", "secret"
-        mock(Models::Fact).find!("1") { fact1 }
-        mock(fact1).destroy { true }
-        delete "/v0/facts/1"
+        delete "/facts/#{fact1.id}"
         last_response.status.must_equal 200
         last_response.body.must_equal ""
       end

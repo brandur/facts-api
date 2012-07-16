@@ -17,6 +17,7 @@ class MiniTest::Spec
   include RR::Adapters::TestUnit
 
   before do
+    # delete faster than truncate for small data sets
     Facts::Models::Fact.delete
     Facts::Models::Category.delete
 
@@ -30,9 +31,11 @@ class MiniTest::Spec
 end
 
 class Hash
-  def stringify_keys!
+  def stringify_keys
     keys.each do |key|
-      self[key.to_s] = delete(key)
+      value = delete(key)
+      value.stringify_keys if value.respond_to?(:stringify_keys)
+      self[key.to_s] = value
     end
     self
   end
@@ -41,8 +44,8 @@ end
 def serialize_generic(serializer, form, obj)
   out = serializer.new(form).serialize(obj)
   if obj.respond_to?(:map)
-    out.map{ |o| o.stringify_keys! }
+    out.map{ |o| o.stringify_keys }
   else
-    out.stringify_keys!
+    out.stringify_keys
   end
 end

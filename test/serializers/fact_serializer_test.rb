@@ -12,7 +12,7 @@ module Facts
       it "serializes with :api" do
         FactSerializer.new(:api).serialize(fact).must_equal(
           { id: 1, content: "The world is big.", created_at: nil, category:
-            { id: 1, category_id: nil, name: "World", slug: "world" }
+            { id: 1, name: "World", slug: "world" }
           })
       end
 

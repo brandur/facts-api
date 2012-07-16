@@ -1,16 +1,10 @@
 module Facts
   module Models
     class Fact < Sequel::Model
+      many_to_one :category
       plugin :timestamps
       plugin :validation_helpers
-
       #set_allowed_columns :category_id, :content
-
-      many_to_one :category
-
-      def self.find!(id)
-        first(id: id) || raise(NotFound)
-      end
 
       def self.ordered
         order(:created_at)
