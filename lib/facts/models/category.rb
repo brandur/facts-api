@@ -25,9 +25,12 @@ module Facts
         eager(descendants: :facts).filter(category_id: nil)
       end
 
-      def self.find_by_path!(path)
+      def self.find_by_path!(path, eager=false)
         slugs = path.split(%r{/}).reverse
-        query = eager(:ancestors, descendants: :facts).filter(slug: slugs.first)
+        query = eager ?
+          eager(:ancestors, descendants: :facts) :
+          eager(:ancestors)
+        query = query.filter(slug: slugs.first)
 
         categories = query.all
         leaf = nil

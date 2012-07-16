@@ -68,7 +68,7 @@ module Facts
         authorize "", "secret"
         attrs = { category_id: 1, name: "Canada", slug: "canada" }
         stub(category2).new? { false }
-        mock(Models::Category).find_by_path!("world/canada") { category2 }
+        mock(Models::Category).find_by_path!("world/canada", true) { category2 }
         mock(category2).update(attrs.stringify_keys!) { true }
         put "/v0/categories/world/canada", category: attrs.to_json
         last_response.status.must_equal 200

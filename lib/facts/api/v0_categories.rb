@@ -37,7 +37,7 @@ module Facts
           authorized!
           require_params!(:category)
           attrs = params[:category].parse_json
-          category = Models::Category.find_by_path!(params[:path])
+          category = Models::Category.find_by_path!(params[:path], true)
           DB.transaction do
             log_stats(update_category(category, attrs))
           end
@@ -50,8 +50,9 @@ module Facts
           require_params!(:category)
           attrs = params[:category].parse_json
           DB.transaction do
-            log_stats(update_categories(CategoryHelpers::TopCategory,
+            log_stats(update_categories(CategoryHelpers::TopCategory.new,
               attrs["categories"]))
+            raise "fuck you sequel"
           end
           ""
         end

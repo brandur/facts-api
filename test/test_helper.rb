@@ -9,6 +9,7 @@ require "facts"
 
 ENV["DATABASE_URL"] = "postgres://localhost/facts-api-test"
 DB = Sequel.connect(Facts::Config.database_url)
+
 require "facts/models/category"
 require "facts/models/fact"
 
@@ -35,11 +36,6 @@ class Hash
     end
     self
   end
-end
-
-def d
-  require "debugger"
-  debugger
 end
 
 def serialize_generic(serializer, form, obj)

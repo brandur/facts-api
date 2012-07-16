@@ -4,7 +4,7 @@ module Facts
       @@serializer = Serializers::CategorySerializer.new(:api)
 
       class TopCategory
-        def self.children
+        def children
           Models::Category.top
         end
       end
@@ -32,7 +32,13 @@ module Facts
             select { |c| c.slug == category_attrs["slug"] }.first
           unless new_category
             new_category = Models::Category.create(
-              category_attrs.merge(parent: category))
+              #parent: !category.kind_of?(TopCategory) ? category : nil,
+              name: category_attrs["name"], slug: category_attrs["slug"])
+            #new_category = Models::Category.new
+            #new_category.parent = !category.kind_of?(TopCategory) ? category : nil
+            #new_category.set_fields(category_attrs, [:name, :slug], missing: :skip)
+            #new_category.save
+puts "created #{new_category.slug}; parent = #{new_category.parent ? new_category.parent.name : nil}"
             merge_stats!(stats, categories_created: 1)
           end
 
@@ -48,6 +54,7 @@ module Facts
       end
 
       def update_category(category, category_attrs)
+puts "updating category = #{category_attrs["name"]}"
         stats = { categories_updated: 0 }
 
         category_attrs_arr = category_attrs.delete("categories")
@@ -56,17 +63,18 @@ module Facts
         # don't bother updating attributes if it looks like this is a
         # category that we've just created
         unless category.new?
-          puts "updating category keys: #{category_attrs.keys}"
           category.update(category_attrs)
           merge_stats!(stats, categories_updated: 1)
         end
 
         if category_attrs_arr
+puts "updating subcategories for #{category.name}"
           sub_stats = update_categories(category, category_attrs_arr) 
           merge_stats!(stats, sub_stats)
         end
 
         if fact_attrs_arr
+puts "updating facts for #{category.name}"
           sub_stats = update_facts(category, fact_attrs_arr) 
           merge_stats!(stats, sub_stats)
         end

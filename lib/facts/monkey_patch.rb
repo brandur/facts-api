@@ -1,3 +1,8 @@
+def d
+  require "debugger"
+  debugger
+end
+
 class NilClass
   def blank?
     true
