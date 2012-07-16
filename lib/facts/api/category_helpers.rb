@@ -23,8 +23,8 @@ module Facts
         end
 
         # delete any facts that aren't supposed to be here anymore
-        Slides.log :destroying, categories: categories_not_updated.to_a
         if categories_not_updated.count > 0
+          Slides.log :destroying, categories: categories_not_updated.to_a
           Models::Category.filter(id: categories_not_updated.to_a).destroy
         end
       end
@@ -32,7 +32,8 @@ module Facts
       def update_facts(category, facts)
         facts_not_updated = Hash[*category.facts.map { |f| [f.id, f]}.flatten]
         facts.each do |attrs|
-          fact = category.facts.select { |f| f.content == attrs["content"] }.first
+          fact =
+            category.facts.select { |f| f.content == attrs["content"] }.first
           unless fact
             Models::Fact.create(attrs.merge(category: category))
           else
@@ -41,8 +42,10 @@ module Facts
         end
 
         # delete any facts that aren't supposed to be here anymore
-        Slides.log :destroying, facts: facts_not_updated.keys
-        facts_not_updated.each { |id, fact| fact.destroy }
+        if facts_not_updated.count > 0
+          Slides.log :destroying, facts: facts_not_updated.keys
+          facts_not_updated.each { |id, fact| fact.destroy }
+        end
 
         category.reload
       end
