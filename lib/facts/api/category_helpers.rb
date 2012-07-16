@@ -7,10 +7,29 @@ module Facts
         @@serializer.serialize(obj).to_json
       end
 
+      def update_categories(categories)
+        categories_not_updated =
+          Set.new(Models::Category.select(:id).all.map(&:id))
+        categories.each do |attrs|
+          facts = attrs.delete("facts")
+          category = Models::Category.first(slug: attrs["slug"])
+          unless category
+            category = Models::Category.create(attrs)
+          else
+            category.update(attrs)
+            categories_not_updated.delete(category.id)
+          end
+          update_facts(category, facts) if facts
+        end
+
+        # delete any facts that aren't supposed to be here anymore
+        Models::Category.filter(id: categories_not_updated.to_a).destroy
+      end
+
       def update_facts(category, facts)
         facts_not_updated = Hash[*category.facts.map { |f| [f.id, f]}.flatten]
         facts.each do |attrs|
-          fact = category.facts.select { |f| f.content == fact["content"] }.first
+          fact = category.facts.select { |f| f.content == attrs["content"] }.first
           unless fact
             Models::Fact.create(attrs.merge(category: category))
           else
@@ -20,6 +39,8 @@ module Facts
 
         # delete any facts that aren't supposed to be here anymore
         facts_not_updated.each { |id, fact| fact.destroy }
+
+        category.reload
       end
     end
   end

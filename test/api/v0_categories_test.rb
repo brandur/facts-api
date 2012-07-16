@@ -63,6 +63,21 @@ module Facts
           ] }))
       end
 
+      it "performs top level sync" do
+        category.save
+
+        authorize "", "secret"
+        attrs = [{ name: "World", slug: "world", facts: [
+          { content: "The world is very big." }
+        ] }]
+        put "/categories", categories: attrs.to_json
+        last_response.status.must_equal 200
+        last_response.body.must_equal ""
+
+        Models::Category.count.must_equal 1
+        Models::Fact.count.must_equal 1
+      end
+
       it "requires authentication to update a category" do
         attrs = { name: "Canada", slug: "canada" }
         put "/categories/canada", category: attrs.to_json
@@ -77,6 +92,21 @@ module Facts
         last_response.status.must_equal 200
         last_json.must_equal(stringify_keys({ id: last_json["id"], name: "Canada",
           slug: "canada", facts: [] }))
+      end
+
+      it "updates existing categories with facts" do
+        category.save
+        Models::Fact.create(category: category, content: "Canada is big.")
+        authorize "", "secret"
+        attrs = { name: "Canada", slug: "canada", facts: [
+          { content: "Canada is very big." }
+        ] }
+        put "/categories/canada", category: attrs.to_json
+        last_response.status.must_equal 200
+        last_json.must_equal(stringify_keys({ id: last_json["id"], name: "Canada",
+          slug: "canada", facts: [
+            id: last_json["facts"][0]["id"], content: "Canada is very big."
+          ] }))
       end
 
       it "requires authentication to delete a category" do

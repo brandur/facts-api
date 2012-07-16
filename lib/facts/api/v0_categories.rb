@@ -27,6 +27,17 @@ module Facts
           serialize(category)
         end
 
+        # special top level sync
+        put do
+          authorized!
+          require_params!(:categories)
+          attrs = params[:categories].parse_json
+          DB.transaction do
+            update_categories(attrs)
+          end
+          ""
+        end
+
         get ":slug" do
           category = Models::Category.eager(:facts).
             first(slug: params[:slug]) || raise(NotFound)

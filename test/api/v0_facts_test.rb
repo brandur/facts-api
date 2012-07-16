@@ -79,8 +79,8 @@ module Facts
         attrs = { category_id: category.id, content: "The world is very big." }
         put "/facts/#{fact1.id}", fact: attrs.to_json
         last_response.status.must_equal 200
-        last_json.must_equal(stringify_keys({ id: last_json["id"], content: "The world is very big.",
-          created_at: last_json["created_at"],
+        last_json.must_equal(stringify_keys({ id: last_json["id"],
+          content: "The world is very big.", created_at: last_json["created_at"],
           category: { id: last_json["category"]["id"], name: "World", slug: "world" }
         }))
       end
