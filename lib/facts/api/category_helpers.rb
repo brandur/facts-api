@@ -23,7 +23,10 @@ module Facts
         end
 
         # delete any facts that aren't supposed to be here anymore
-        Models::Category.filter(id: categories_not_updated.to_a).destroy
+        Slides.log :destroying, categories: categories_not_updated.to_a
+        if categories_not_updated.count > 0
+          Models::Category.filter(id: categories_not_updated.to_a).destroy
+        end
       end
 
       def update_facts(category, facts)
@@ -38,6 +41,7 @@ module Facts
         end
 
         # delete any facts that aren't supposed to be here anymore
+        Slides.log :destroying, facts: facts_not_updated.keys
         facts_not_updated.each { |id, fact| fact.destroy }
 
         category.reload
