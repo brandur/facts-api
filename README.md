@@ -4,6 +4,10 @@ Facts API
 Development
 -----------
 
+Migrate:
+
+    sequel -m db/migrations postgres://localhost/facts-api-development
+
 Run tests:
 
     bundle exec rake test
