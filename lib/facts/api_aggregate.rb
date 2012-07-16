@@ -5,7 +5,8 @@ module Facts
     end
 
     rescue_from Sequel::ValidationFailed do |e|
-      Slides.log(:error, type: e.class.name, status: 422, id: request.id)
+      Slides.log(:error, type: e.class.name, message: e.message, status: 422,
+        id: request.id)
       rack_response(JSON.dump(e.errors.flatten), 422)
     end
 
