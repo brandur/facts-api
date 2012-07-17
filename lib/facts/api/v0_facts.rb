@@ -15,7 +15,7 @@ module Facts
         end
 
         get :latest do
-          serialize(Models::Fact.ordered.limit(50))
+          serialize(Models::Fact.ordered.reverse.limit(50))
         end
 
         get :random do

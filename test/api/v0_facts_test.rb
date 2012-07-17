@@ -25,7 +25,7 @@ module Facts
       end
 
       it "gets latest" do
-        mock(Models::Fact).ordered.mock!.limit(50) { [fact1, fact2] }
+        mock(Models::Fact).ordered.mock!.reverse.mock!.limit(50) { [fact1, fact2] }
         get "/facts/latest"
         last_response.status.must_equal 200
         last_json.must_equal serialize([fact1, fact2])
