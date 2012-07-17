@@ -24,7 +24,7 @@ module Facts
       def require_params!(*keys)
         keys.each do |key|
           unless params[key]
-            raise BadRequest("Bad request: require parameter: #{key}")
+            raise BadRequest.new("Bad request: require parameter: #{key}")
           end
         end
       end
