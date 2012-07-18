@@ -9,10 +9,6 @@ module Facts
         fact.valid?.must_equal true
       end
 
-      it "renders content as markdown" do
-        fact.content_html.must_match %r{The world is <strong>big</strong>.}
-      end
-
       describe "scopes" do
         let(:category)  { Category.new(id: 1, name: "World", slug: "world") }
 

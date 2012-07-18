@@ -18,12 +18,6 @@ module Facts
         filter('facts.content ILIKE ?', "%#{query}%")
       end
 
-      def content_html
-        renderer = Redcarpet::Markdown.new(Redcarpet::Render::HTML, 
-          :fenced_code_blocks => true, :hard_wrap => true)
-        renderer.render(content)
-      end
-
       def validate
         super
         validates_presence [:category_id, :content]
