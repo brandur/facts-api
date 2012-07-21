@@ -47,7 +47,7 @@ module Facts
           authorized!
           fact = Models::Fact.first(id: params[:id].to_i) || raise(NotFound)
           fact.destroy
-          ""
+          {}.to_json
         end
       end
     end

@@ -113,7 +113,7 @@ module Facts
         authorize "", "secret"
         delete "/facts/#{fact1.id}"
         last_response.status.must_equal 200
-        last_response.body.must_equal ""
+        last_json.must_equal({})
       end
 
       private

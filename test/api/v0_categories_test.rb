@@ -44,7 +44,7 @@ module Facts
         ] }]
         put "/categories", categories: attrs.to_json
         last_response.status.must_equal 200
-        last_response.body.must_equal ""
+        last_json.must_equal({})
 
         Models::Category.count.must_equal 1
         Models::Fact.count.must_equal 1
@@ -119,7 +119,7 @@ module Facts
         authorize "", "secret"
         delete "/categories/canada"
         last_response.status.must_equal 200
-        last_response.body.must_equal ""
+        last_json.must_equal({})
       end
 
       private

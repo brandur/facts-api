@@ -22,7 +22,7 @@ module Facts
           DB.transaction do
             update_categories(attrs)
           end
-          ""
+          {}.to_json
         end
 
         get ":slug" do
@@ -56,7 +56,7 @@ module Facts
           category = Models::Category.first(slug: params[:slug]) ||
             raise(NotFound)
           category.destroy
-          ""
+          {}.to_json
         end
       end
     end
