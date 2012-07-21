@@ -23,7 +23,7 @@ module Facts
           results = Models::Category.
             from(:categories, "to_tsquery('english', ?) query".lit(params[:q])).
             select_append("ts_rank_cd(tsv, query) AS rank".lit).
-            where("query @@ tsv").order(:rank).eager(:facts).limit(50).all
+            where("query @@ tsv").order(:rank.desc).eager(:facts).limit(50).all
           serialize(results)
         end
 
