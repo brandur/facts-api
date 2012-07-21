@@ -28,8 +28,11 @@ module Facts
         end
 
         get :search do
-          serialize(Models::Fact.filter("tsv @@ to_tsquery('english', ?)",
-            "#{params[:q]}:*").eager(:category).limit(50).all)
+          results = Models::Fact.
+            from(:facts, "to_tsquery('english', ?) query".lit(params[:q])).
+            select_append("ts_rank_cd(tsv, query) AS rank".lit).
+            where("query @@ tsv").order(:rank).eager(:category).limit(50).all
+          serialize(results)
         end
 
         post do
