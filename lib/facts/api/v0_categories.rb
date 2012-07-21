@@ -7,6 +7,10 @@ module Facts
 
       helpers do
         include CategoryHelpers
+
+        def serialize(category)
+          Serializers::CategorySerializer.new(:v0).serialize(category)
+        end
       end
 
       resource :categories do

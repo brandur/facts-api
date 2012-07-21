@@ -1,12 +1,6 @@
 module Facts
   module Api
     module CategoryHelpers
-      @@serializer = Serializers::CategorySerializer.new(:v0)
-
-      def serialize(obj)
-        @@serializer.serialize(obj).to_json
-      end
-
       def update_categories(categories)
         categories_not_updated =
           Set.new(Models::Category.select(:id).all.map(&:id))

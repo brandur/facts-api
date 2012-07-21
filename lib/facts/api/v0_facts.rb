@@ -6,7 +6,9 @@ module Facts
       version 'v0', using: :header
 
       helpers do
-        include FactHelpers
+        def serialize(fact)
+          Serializers::FactSerializer.new(:v0).serialize(fact)
+        end
       end
 
       resource :facts do
