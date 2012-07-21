@@ -14,19 +14,6 @@ module Facts
           serialize(Models::Category.all)
         end
 
-        post do
-          authorized!
-          require_params!(:category)
-          attrs = params[:category].parse_json
-          category = nil
-          DB.transaction do
-            facts = attrs.delete("facts")
-            category = Models::Category.create(attrs)
-            update_facts(category, facts) if facts
-          end
-          serialize(category)
-        end
-
         # special top level sync
         put do
           authorized!
@@ -44,15 +31,21 @@ module Facts
           serialize(category)
         end
 
+        # idempotent endpoint for both category creation and update
         put ":slug" do
           authorized!
           require_params!(:category)
           attrs = params[:category].parse_json
-          category = Models::Category.eager(:facts).
-            first(slug: params[:slug]) || raise(NotFound)
+          category = nil
           DB.transaction do
             facts = attrs.delete("facts")
-            category.update(attrs)
+            if category = Models::Category.eager(:facts).
+              first(slug: params[:slug])
+                category.update(attrs)
+            else
+              category = Models::Category.create(attrs)
+              status(201)
+            end
             update_facts(category, facts) if facts
           end
           serialize(category)

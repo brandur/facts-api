@@ -35,34 +35,6 @@ module Facts
         last_json.must_equal({ "error" => "Not found" })
       end
 
-      it "requires authentication to create a category" do
-        attrs = { category_id: 1, name: "Canada", slug: "canada" }
-        post "/categories", category: attrs.to_json
-        last_response.status.must_equal 401
-      end
-
-      it "creates new categories" do
-        authorize "", "secret"
-        attrs = { name: "Canada", slug: "canada" }
-        post "/categories", category: attrs.to_json
-        last_response.status.must_equal 201
-        last_json.must_equal(stringify_keys({ id: last_json["id"], name: "Canada",
-          slug: "canada", facts: [] }))
-      end
-
-      it "creates new categories with facts" do
-        authorize "", "secret"
-        attrs = { name: "Canada", slug: "canada", facts: [
-          { content: "Canada is very big." }
-        ] }
-        post "/categories", category: attrs.to_json
-        last_response.status.must_equal 201
-        last_json.must_equal(stringify_keys({ id: last_json["id"], name: "Canada",
-          slug: "canada", facts: [
-            id: last_json["facts"][0]["id"], content: "Canada is very big."
-          ] }))
-      end
-
       it "performs top level sync" do
         category.save
 
@@ -76,6 +48,34 @@ module Facts
 
         Models::Category.count.must_equal 1
         Models::Fact.count.must_equal 1
+      end
+
+      it "requires authentication to create a category" do
+        attrs = { category_id: 1, name: "Canada", slug: "canada" }
+        put "/categories/canada", category: attrs.to_json
+        last_response.status.must_equal 401
+      end
+
+      it "creates new categories" do
+        authorize "", "secret"
+        attrs = { name: "Canada", slug: "canada" }
+        put "/categories/canada", category: attrs.to_json
+        last_response.status.must_equal 201
+        last_json.must_equal(stringify_keys({ id: last_json["id"], name: "Canada",
+          slug: "canada", facts: [] }))
+      end
+
+      it "creates new categories with facts" do
+        authorize "", "secret"
+        attrs = { name: "Canada", slug: "canada", facts: [
+          { content: "Canada is very big." }
+        ] }
+        put "/categories/canada", category: attrs.to_json
+        last_response.status.must_equal 201
+        last_json.must_equal(stringify_keys({ id: last_json["id"], name: "Canada",
+          slug: "canada", facts: [
+            id: last_json["facts"][0]["id"], content: "Canada is very big."
+          ] }))
       end
 
       it "requires authentication to update a category" do
