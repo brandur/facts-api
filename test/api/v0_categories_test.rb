@@ -125,7 +125,7 @@ module Facts
       private
 
       def serialize(obj)
-        serialize_generic(Serializers::CategorySerializer, :api, obj)
+        serialize_generic(Serializers::CategorySerializer, :v0, obj)
       end
     end
   end

@@ -1,27 +1,16 @@
 module Facts
   module Serializers
     class CategorySerializer < Base
-      def api(c)
+      def v0(c)
         {
-          id:    c.id,
-          name:  c.name,
-          slug:  c.slug,
-          facts: fact_serializer.serialize(c.facts),
+          id:        c.id,
+          name:      c.name,
+          slug:      c.slug,
+          facts:     c.facts.map { |f| {
+            id:      f.id,
+            content: f.content,
+          } }
         }
-      end
-
-      def nested(c)
-        {
-          id:   c.id,
-          name: c.name,
-          slug: c.slug,
-        }
-      end
-
-      private
-
-      def fact_serializer
-        @@fact_serializer ||= FactSerializer.new(:nested)
       end
     end
   end

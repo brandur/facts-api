@@ -119,7 +119,7 @@ module Facts
       private
 
       def serialize(obj)
-        serialize_generic(Serializers::FactSerializer, :api, obj)
+        serialize_generic(Serializers::FactSerializer, :v0, obj)
       end
     end
   end

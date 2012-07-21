@@ -1,7 +1,7 @@
 module Facts
   module Api
     module CategoryHelpers
-      @@serializer = Serializers::CategorySerializer.new(:api)
+      @@serializer = Serializers::CategorySerializer.new(:v0)
 
       def serialize(obj)
         @@serializer.serialize(obj).to_json

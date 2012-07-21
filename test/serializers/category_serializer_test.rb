@@ -10,16 +10,11 @@ module Facts
         end
       }
 
-      it "serializes with :api" do
-        CategorySerializer.new(:api).serialize(category).must_equal(
+      it "serializes with :v0" do
+        CategorySerializer.new(:v0).serialize(category).must_equal(
           id: 1, name: "World", slug: "world", facts: [
             { id: 1, content: "The world is big." }
           ])
-      end
-
-      it "serializes with :nested" do
-        CategorySerializer.new(:nested).serialize(category).must_equal(
-          { id: 1, name: "World", slug: "world" })
       end
     end
   end
