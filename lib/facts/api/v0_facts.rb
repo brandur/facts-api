@@ -17,11 +17,13 @@ module Facts
         end
 
         get :latest do
-          serialize(Models::Fact.ordered.eager(:category).reverse.limit(50).all)
+          serialize(Models::Fact.order(:created_at).eager(:category).reverse.
+            limit(50).all)
         end
 
         get :random do
-          serialize(Models::Fact.random.eager(:category).limit(50).all)
+          serialize(Models::Fact.order("RANDOM()".lit).eager(:category).
+            limit(50).all)
         end
 
         post do

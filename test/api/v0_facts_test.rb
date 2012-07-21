@@ -25,15 +25,15 @@ module Facts
       end
 
       it "gets latest" do
-        mock(Models::Fact).ordered.mock!.eager(:category).mock!.reverse.mock!.
-          limit(50).mock!.all { [fact1, fact2] }
+        mock(Models::Fact).order(:created_at).mock!.eager(:category).mock!.
+          reverse.mock!.limit(50).mock!.all { [fact1, fact2] }
         get "/facts/latest"
         last_response.status.must_equal 200
         last_json.must_equal serialize([fact1, fact2])
       end
 
       it "gets random" do
-        mock(Models::Fact).random.mock!.eager(:category).mock!.
+        mock(Models::Fact).order("RANDOM()".lit).mock!.eager(:category).mock!.
           limit(50).mock!.all { [fact1, fact2] }
         get "/facts/random"
         last_response.status.must_equal 200

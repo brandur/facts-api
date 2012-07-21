@@ -6,10 +6,6 @@ module Facts
       plugin :validation_helpers
       #set_allowed_columns :name, :slug
 
-      def self.ordered
-        order(:name)
-      end
-
       def self.search(query)
         filter(:name.qualify(:categories).ilike("%#{query}%"))
       end

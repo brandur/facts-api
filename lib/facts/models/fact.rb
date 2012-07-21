@@ -6,18 +6,6 @@ module Facts
       plugin :validation_helpers
       #set_allowed_columns :category_id, :content
 
-      def self.ordered
-        order(:created_at)
-      end
-
-      def self.random
-        order("RANDOM()".lit)
-      end
-
-      def self.search(query)
-        filter('facts.content ILIKE ?', "%#{query}%")
-      end
-
       def validate
         super
         validates_presence [:category_id, :content]
