@@ -12,6 +12,7 @@ module Facts
       end
 
       resource :facts do
+        # @todo: pagination
         get do
           serialize(Models::Fact.all)
         end
@@ -24,6 +25,11 @@ module Facts
         get :random do
           serialize(Models::Fact.order("RANDOM()".lit).eager(:category).
             limit(50).all)
+        end
+
+        get :search do
+          serialize(Models::Fact.filter("tsv @@ to_tsquery('english', ?)",
+            "#{params[:q]}:*").eager(:category).limit(50).all)
         end
 
         post do

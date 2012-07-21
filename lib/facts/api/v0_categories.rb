@@ -14,8 +14,14 @@ module Facts
       end
 
       resource :categories do
+        # @todo: pagination
         get do
           serialize(Models::Category.all)
+        end
+
+        get :search do
+          serialize(Models::Category.filter("tsv @@ to_tsquery('english', ?)",
+            "#{params[:q]}:*").eager(:facts).limit(50).all)
         end
 
         # special top level sync

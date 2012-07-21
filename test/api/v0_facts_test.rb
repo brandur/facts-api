@@ -40,6 +40,14 @@ module Facts
         last_json.must_equal serialize([fact1, fact2])
       end
 
+      it "gets search" do
+        category.save
+        fact1.save
+        get "/facts/search", q: "worldly"
+        last_response.status.must_equal 200
+        last_json.must_equal serialize([fact1])
+      end
+
       it "gets by id" do
         category.save
         fact1.save

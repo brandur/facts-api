@@ -22,6 +22,13 @@ module Facts
         last_json.must_equal serialize([category])
       end
 
+      it "gets search" do
+        category.save
+        get "/categories/search", q: "canada's"
+        last_response.status.must_equal 200
+        last_json.must_equal serialize([category])
+      end
+
       it "gets by slug" do
         category.save
         get "/categories/canada"
