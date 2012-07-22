@@ -3,16 +3,15 @@ require "test_helper"
 module Facts
   module Serializers
     describe FactSerializer do
-      let(:fact) do
-        Models::Fact.new(id: 1, content: "The world is big.").tap do |f|
-          f.category = Models::Category.new(id: 1, name: 'World', slug: 'world')
-        end
+      before do
+        @fact = Models::Fact.new(content: "The world is big.")
+        stub(@fact).category { Models::Category.new(name: 'World', slug: 'world') }
       end
 
       it "serializes with :v0" do
-        FactSerializer.new(:v0).serialize(fact).must_equal(
-          { id: 1, content: "The world is big.", created_at: nil, category:
-            { id: 1, name: "World", slug: "world" }
+        FactSerializer.new(:v0).serialize(@fact).must_equal(
+          { id: nil, content: "The world is big.", created_at: nil, category:
+            { id: nil, name: "World", slug: "world" }
           })
       end
     end

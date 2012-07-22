@@ -4,7 +4,7 @@ module Facts
       many_to_one :category
       plugin :timestamps
       plugin :validation_helpers
-      #set_allowed_columns :category_id, :content
+      set_allowed_columns :category, :category_id, :content
 
       def validate
         super

@@ -4,7 +4,7 @@ module Facts
       one_to_many :facts
       plugin :timestamps
       plugin :validation_helpers
-      #set_allowed_columns :name, :slug
+      set_allowed_columns :name, :slug
 
       def self.search(query)
         filter(:name.qualify(:categories).ilike("%#{query}%"))
