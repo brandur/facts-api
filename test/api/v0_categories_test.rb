@@ -5,11 +5,9 @@ module Facts
     describe "api v0 categories" do
       include Rack::Test::Methods
 
-      let(:category) { Models::Category.new(id: 1, name: "Canada", slug: "canada") }
-
       before do
         ENV["FACTS_HTTP_API_KEY"] = "secret"
-        category.save
+        @category = Models::Category.create(name: "Canada", slug: "canada")
       end
 
       def app
@@ -19,19 +17,19 @@ module Facts
       it "gets all" do
         get "/categories"
         last_response.status.must_equal 200
-        last_json.must_equal serialize([category])
+        last_json.must_equal serialize([@category])
       end
 
       it "gets search" do
         get "/categories/search", q: "canada's"
         last_response.status.must_equal 200
-        last_json.must_equal serialize([category])
+        last_json.must_equal serialize([@category])
       end
 
       it "gets by slug" do
         get "/categories/canada"
         last_response.status.must_equal 200
-        last_json.must_equal serialize(category)
+        last_json.must_equal serialize(@category)
       end
 
       it "renders a 404" do
@@ -97,7 +95,7 @@ module Facts
       end
 
       it "updates existing categories with facts" do
-        Models::Fact.create(category: category, content: "Canada is big.")
+        Models::Fact.create(category: @category, content: "Canada is big.")
         authorize "", "secret"
         attrs = { name: "Canada", slug: "canada", facts: [
           { content: "Canada is very big." }
