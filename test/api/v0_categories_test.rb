@@ -5,32 +5,30 @@ module Facts
     describe "api v0 categories" do
       include Rack::Test::Methods
 
+      let(:category) { Models::Category.new(id: 1, name: "Canada", slug: "canada") }
+
       before do
         ENV["FACTS_HTTP_API_KEY"] = "secret"
+        category.save
       end
-
-      let(:category) { Models::Category.new(id: 1, name: "Canada", slug: "canada") }
 
       def app
         Facts::ApiAggregate
       end
 
       it "gets all" do
-        mock(Models::Category).all { [category] }
         get "/categories"
         last_response.status.must_equal 200
         last_json.must_equal serialize([category])
       end
 
       it "gets search" do
-        category.save
         get "/categories/search", q: "canada's"
         last_response.status.must_equal 200
         last_json.must_equal serialize([category])
       end
 
       it "gets by slug" do
-        category.save
         get "/categories/canada"
         last_response.status.must_equal 200
         last_json.must_equal serialize(category)
@@ -43,8 +41,6 @@ module Facts
       end
 
       it "performs top level sync" do
-        category.save
-
         authorize "", "secret"
         attrs = [{ name: "World", slug: "world", facts: [
           { content: "The world is very big." }
@@ -65,23 +61,23 @@ module Facts
 
       it "creates new categories" do
         authorize "", "secret"
-        attrs = { name: "Canada", slug: "canada" }
-        put "/categories/canada", category: attrs.to_json
+        attrs = { name: "Iceland", slug: "iceland" }
+        put "/categories/iceland", category: attrs.to_json
         last_response.status.must_equal 201
-        last_json.must_equal(stringify_keys({ id: last_json["id"], name: "Canada",
-          slug: "canada", facts: [] }))
+        last_json.must_equal(stringify_keys({ id: last_json["id"], 
+          name: "Iceland", slug: "iceland", facts: [] }))
       end
 
       it "creates new categories with facts" do
         authorize "", "secret"
-        attrs = { name: "Canada", slug: "canada", facts: [
-          { content: "Canada is very big." }
+        attrs = { name: "Iceland", slug: "iceland", facts: [
+          { content: "Iceland is very beautiful." }
         ] }
-        put "/categories/canada", category: attrs.to_json
+        put "/categories/iceland", category: attrs.to_json
         last_response.status.must_equal 201
-        last_json.must_equal(stringify_keys({ id: last_json["id"], name: "Canada",
-          slug: "canada", facts: [
-            id: last_json["facts"][0]["id"], content: "Canada is very big."
+        last_json.must_equal(stringify_keys({ id: last_json["id"],
+          name: "Iceland", slug: "iceland", facts: [
+            id: last_json["facts"][0]["id"], content: "Iceland is very beautiful."
           ] }))
       end
 
@@ -92,7 +88,6 @@ module Facts
       end
 
       it "updates existing categories" do
-        category.save
         authorize "", "secret"
         attrs = { name: "Canada", slug: "canada" }
         put "/categories/canada", category: attrs.to_json
@@ -102,7 +97,6 @@ module Facts
       end
 
       it "updates existing categories with facts" do
-        category.save
         Models::Fact.create(category: category, content: "Canada is big.")
         authorize "", "secret"
         attrs = { name: "Canada", slug: "canada", facts: [
@@ -122,7 +116,6 @@ module Facts
       end
 
       it "deletes a category" do
-        category.save
         authorize "", "secret"
         delete "/categories/canada"
         last_response.status.must_equal 200

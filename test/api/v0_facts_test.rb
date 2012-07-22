@@ -5,52 +5,46 @@ module Facts
     describe "api v0 facts" do
       include Rack::Test::Methods
 
+      let(:category) { Models::Category.create(name: "World", slug: "world") }
+      let(:fact1) { Models::Fact.create(category: category, content: "The world is big.") }
+      let(:fact2) { Models::Fact.create(category: category, content: "The world is round.") }
+
       before do
         ENV["FACTS_HTTP_API_KEY"] = "secret"
-      end
 
-      let(:category) { Models::Category.new(id: 1, name: "World", slug: "world") }
-      let(:fact1) { Models::Fact.new(id: 1, category: category, content: "The world is big.") }
-      let(:fact2) { Models::Fact.new(id: 2, category: category, content: "The world is round.") }
+        category.save ; fact1.save ; fact2.save
+      end
 
       def app
         Facts::ApiAggregate
       end
 
       it "gets all" do
-        mock(Models::Fact).all { [fact1, fact2] }
         get "/facts"
         last_response.status.must_equal 200
         last_json.must_equal serialize([fact1, fact2])
       end
 
       it "gets latest" do
-        mock(Models::Fact).order(:created_at).mock!.eager(:category).mock!.
-          reverse.mock!.limit(50).mock!.all { [fact1, fact2] }
         get "/facts/latest"
         last_response.status.must_equal 200
-        last_json.must_equal serialize([fact1, fact2])
+        last_json.must_equal serialize([fact2, fact1])
       end
 
       it "gets random" do
-        mock(Models::Fact).order("RANDOM()".lit).mock!.eager(:category).mock!.
-          limit(50).mock!.all { [fact1, fact2] }
         get "/facts/random"
+        last_response.status.must_equal 200
+        last_json.must_include serialize(fact1)
+        last_json.must_include serialize(fact2)
+      end
+
+      it "gets search" do
+        get "/facts/search", q: "worldly"
         last_response.status.must_equal 200
         last_json.must_equal serialize([fact1, fact2])
       end
 
-      it "gets search" do
-        category.save
-        fact1.save
-        get "/facts/search", q: "worldly"
-        last_response.status.must_equal 200
-        last_json.must_equal serialize([fact1])
-      end
-
       it "gets by id" do
-        category.save
-        fact1.save
         get "/facts/#{fact1.id}"
         last_response.status.must_equal 200
         last_json.must_equal serialize(fact1)
@@ -69,14 +63,12 @@ module Facts
       end
 
       it "requires authentication to create a fact" do
-        category.save
         attrs = { category_id: category.id, content: "The world is big." }
         post "/facts", { fact: attrs.to_json }
         last_response.status.must_equal 401
       end
 
       it "creates new facts" do
-        category.save
         authorize "", "secret"
         attrs = { category_id: category.id, content: "The world is big." }
         post "/facts", { fact: attrs.to_json }
@@ -88,16 +80,12 @@ module Facts
       end
 
       it "requires authentication to update a fact" do
-        category.save
-        fact1.save
         attrs = { category_id: category.id, content: "The world is very big." }
         put "/facts/#{fact1.id}", fact: attrs.to_json
         last_response.status.must_equal 401
       end
 
       it "updates existing facts" do
-        category.save
-        fact1.save
         authorize "", "secret"
         attrs = { category_id: category.id, content: "The world is very big." }
         put "/facts/#{fact1.id}", fact: attrs.to_json
@@ -109,15 +97,11 @@ module Facts
       end
 
       it "requires authentication to delete a fact" do
-        category.save
-        fact1.save
         delete "/facts/#{fact1.id}"
         last_response.status.must_equal 401
       end
 
       it "deletes a fact" do
-        category.save
-        fact1.save
         authorize "", "secret"
         delete "/facts/#{fact1.id}"
         last_response.status.must_equal 200
