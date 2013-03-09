@@ -10,7 +10,7 @@ module Facts
 
       it "serializes with :v0" do
         FactSerializer.new(:v0).serialize(@fact).must_equal(
-          { id: nil, content: "The world is big.", created_at: nil, category:
+          { id: nil, content: "The world is big.", category:
             { id: nil, name: "World", slug: "world" }
           })
       end

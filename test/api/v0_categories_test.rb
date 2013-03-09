@@ -117,7 +117,8 @@ module Facts
         authorize "", "secret"
         delete "/categories/canada"
         last_response.status.must_equal 200
-        last_json.must_equal({})
+        last_json.must_equal(stringify_keys({ id: last_json["id"], name: "Canada",
+          slug: "canada", facts: [] }))
       end
 
       private

@@ -69,7 +69,7 @@ module Facts
           category = Models::Category.first(slug: params[:slug]) ||
             raise(NotFound)
           category.destroy
-          {}.to_json
+          serialize(category)
         end
       end
     end

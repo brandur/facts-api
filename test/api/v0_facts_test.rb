@@ -74,7 +74,7 @@ module Facts
         post "/facts", { fact: attrs.to_json }
         last_response.status.must_equal 201
         last_json.must_equal(stringify_keys({ id: last_json["id"],
-          content: "The world is big.", created_at: last_json["created_at"],
+          content: "The world is big.",
           category: { id: last_json["category"]["id"], name: "World", slug: "world" }
         }))
       end
@@ -91,7 +91,7 @@ module Facts
         put "/facts/#{@fact1.id}", fact: attrs.to_json
         last_response.status.must_equal 200
         last_json.must_equal(stringify_keys({ id: last_json["id"],
-          content: "The world is very big.", created_at: last_json["created_at"],
+          content: "The world is very big.",
           category: { id: last_json["category"]["id"], name: "World", slug: "world" }
         }))
       end
@@ -105,7 +105,10 @@ module Facts
         authorize "", "secret"
         delete "/facts/#{@fact1.id}"
         last_response.status.must_equal 200
-        last_json.must_equal({})
+        last_json.must_equal(stringify_keys({ id: last_json["id"],
+          content: "The world is big.",
+          category: { id: last_json["category"]["id"], name: "World", slug: "world" }
+        }))
       end
 
       private

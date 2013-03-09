@@ -5,7 +5,6 @@ module Facts
         {
           id:         f.id,
           content:    f.content,
-          created_at: f.created_at,
           category:   {
             id:       f.category.id,
             name:     f.category.name,
