@@ -1,5 +1,7 @@
 source :rubygems
 
+ruby "2.0.0"
+
 gem "grape",                "~> 0.2.0"
 gem "json",                 "~> 1.6.6"
 gem "pg",                   "~> 0.13.2"
